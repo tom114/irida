@@ -3,6 +3,8 @@
 IRIDA
 =====
 
+Something new!
+
 IRIDA is Canada’s Integrated Rapid Infectious Disease Analysis Platform for Genomic Epidemiology.  More information can be found in the following links.
 
 Important Links
