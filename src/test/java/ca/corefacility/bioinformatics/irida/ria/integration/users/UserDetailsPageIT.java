@@ -57,6 +57,7 @@ public class UserDetailsPageIT extends AbstractIridaUIITChromeDriver {
 		assertTrue(usersPage.checkSuccessNotification());
 	}
 
+	@Test
 	public void testSubscribeToProject() {
 		usersPage.subscribeToFirstProject();
 		assertTrue("Should be a success notification that you subscribed", usersPage.checkSuccessNotification());
