@@ -1,8 +1,37 @@
 Changes
 =======
 
-0.22.0 to 0.23.0
+19.01 to 19.04
+---------------
+* [Documentation]: Added the CalVer updates to the documentation getting started guide.
+* [Documentation]: Added note with link to NGS Linker installation documentation to Command-line Linker modal
+* [UI/Developer]: Updated to lodash v4.17.11 to fix security issue. (19.01.1)
+* [UI/Developer]: Updated yarn to (1.13.0) and node to (11.10.0).
+* [UI]: Added ability for user to select if they would like to receive an email upon pipeline completion.
+* [UI/Developer]: Added expose loader to load external dependencies through the vendor bundle.
+* [UI/Developer]: Updated jquery to v3.3.1 to fix security issue.
+* [UI/Developer]: Updated bootstrap dependencies and cleaned up dependencies by running `yarn install --flat` and resolving dependencies.
+* [UI]: Fixed typo when loading data in **Advanced Phylogenomic Visualization** page.
+* [Admin]: Added message to add `irida.db.profile` param for Tomcat in docs and upgrading guide.
+* [UI/Developer]: Added code splitting to webpack bundles.
+* [UI/Developer]: Minor JavaScript code cleanup.
+* [Developer]: Updated spring security to 4.0.4.RELEASE.
+* [Admin]: Made analysis task pool size configurable with `irida.workflow.analysis.threads`. (19.01.2)
+* [REST]: Fixes issue where the Sample collection date was synchronized incorrectly, leading to the synced date up to one day off from the original date. (19.01.2)
+* [UI]: Fixed bug where uploading a metadata file with a `.` in the header row would cause an error. (19.01.2)
+* [UI]: Updated icons for datatables sorting and metadata importer.
+* [UI]: Fixed bug where users could not update their email subscriptions to projects. (19.01.2)
+* [UI/Developer]: Fixed issue where search for member to add to group resulted in no results found when search term contained capital letters.
+* [Documentation]: Added information on fixing `ONLY_FULL_GROUP_BY` sql error to the administrator faq docs.
+* [UI]: User on a remote project with a project role of manager has the ability to assign user groups to the project.
+* [UI]: Fixed bug preventing associated projects from being loaded into the project samples table. (19.01.3)
+* [Developer]: Moved FastQC results out of database to filesystem for a big reduction in database size and performance.  See https://irida.corefacility.ca/documentation/adminstrator/upgrades/#1904 for more information. 
+* [UI]: Added hard wrap on sample name on sample details page.
+
+0.22.0 to 19.01
 ----------------
+* [Admin]: Updated versioning to a [CalVer](https://calver.org/) scheme of YY.0M.MICRO.  New feature releases will have the appropriate the year and month fields, where bugfixes will increment the MICRO field.
+* [Database]: Fixed an issue where metadata entries derived from pipelines were not updating the associated analysis submission and ignorning blank entries. (0.23.5)
 * [Developer]: Added classes `.jar` maven export in build process.
 * [UI]: Added the sample coverage to the table exported from the project samples page.
 * [UI/Workflow]: Added option to disable workflows/analysis types from display in IRIDA using `irida.workflow.types.disabled`. (0.22.1)
@@ -31,8 +60,18 @@ Changes
 * [UI]: IRIDA will now remove local samples when a synchronized remote sample is removed at its source.
 * [UI]: New project line list page with inline editing.
 * [Developer]: Updated Node, Yarn, and front-end webpack packages.
+* [Workflow]: Fixed Shovill Galaxy tool revision for SISTR and Assembly/Annotation pipelines.
 * [Developer]: Update to ag-grid-community v.19.1.2.
 * [Documentation]: Changed references from GitLab to GitHub in docs.
+* [UI]: Removed angular-resource, angular-messages, angular-sanitize, angular-animate, angular-datatables, ng-table and angular-drag-and-drop-lists.
+* [REST]: Added method to greatly increase speed of listing samples in a project.  This was becoming an issue for projects with metadata and >5k samples.
+* [Developer]: Added pull request and issue templates for github.
+* [Developer]: Update Docker Galaxy container to Galaxy 18.09.
+* [Administration]: Updated method for automatically installing tools in Galaxy to use [Ephemeris](https://ephemeris.readthedocs.io/en/latest/readme.html).
+* [Developer]: Updated to version 20.0.0 of ag-grid UI component.
+* [UI]: Add link back to sample for analysis input files on the Analsysis Details Page.
+* [UI]: Fixes issue where attempting to select all samples with a filter applied selected all samples in project.
+* [UI]: Fixed issue with exporting samples to galaxy through project/samples page failing.
 
 0.21.0 to 0.22.0
 ----------------

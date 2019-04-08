@@ -43,13 +43,19 @@ Deploying IRIDA mainly involves deploying the `WAR` file into your Servlet conta
 
 Servlet Container Configuration
 -------------------------------
-An environment variable needs to be set in your Servlet container for IRIDA to function correctly: `spring.profiles.active=prod`.
+Two environment variables needs to be set in your Servlet container for IRIDA to function correctly: `spring.profiles.active=prod` and `irida.db.profile=prod`.
 
 You can adjust these variables in Tomcat by editing (depending on your distribution) `/etc/tomcat/tomcat.conf` (CentOS) or `/etc/default/tomcat7` (Ubuntu), and finding the `JAVA_OPTS` variable and setting the variables as shown below:
 
-    JAVA_OPTS="-Dspring.profiles.active=prod"
+```
+JAVA_OPTS="-Dspring.profiles.active=prod -Dirida.db.profile=prod"
+```
 
-For high usage or high load installations of IRIDA, you may want to consider deploying IRIDA on multiple servers.  For more on this feature, see the [Multi Web Server Configuration](#multi-web-server-configuration) section.
+The `irida.db.profile=prod` option sets a number of recommended database settings for IRIDA such as JDBC, Hibernate, and Liquibase options.  See the [jdbc.prod.properties file](https://github.com/phac-nml/irida/blob/master/src/main/resources/ca/corefacility/bioinformatics/irida/config/jdbc.prod.properties) for what gets set.  All these options can be overridden in your `/etc/irida/irida.conf` file.
+
+The `spring.profiles.active=prod` option will enable all the production features of IRIDA (web server, project synchronization, email announcements, NCBI uploads, analysis engine).
+
+For high usage or high load installations of IRIDA, you may consider deploying these features to multiple servers.  For more on this feature, see the [Multi Web Server Configuration](#multi-web-server-configuration) section.
 
 Core Configuration
 ------------------
@@ -81,6 +87,7 @@ The main configuration parameters you will need to change are:
   * `galaxy.execution.apiKey=xxxx`
   * `galaxy.execution.email=user@localhost`
   * `irida.workflow.max-running=4` - The maximum number of running workflows.  For larger installations this number can be increased.
+  * `irida.workflow.analysis.threads` - The number of threads to use for handling analysis/workflow tasks. For larger installations this number can be increased. Increasing beyond `irida.workflow.max-running` is unlikely to give any additional performance boost.
 4. **NCBI SRA export configuration** - An SRA bulk upload user account must be created with NCBI to allow automated SRA uploads.  See [NCBI SRA Handbook](http://www.ncbi.nlm.nih.gov/books/NBK47529/#_SRA_Quick_Sub_BK_Establishing_a_Center_A_) for details.
   * `ncbi.upload.host` - FTP host to upload ncbi exports
   * `ncbi.upload.user` - FTP Username
@@ -162,7 +169,7 @@ Multi Web Server Configuration
 -------------------------------
 When IRIDA is deployed in a higher load environment, it may be preferable to deploy multiple IRIDA web application servers to handle all web requests, processing, and scheduled tasks.  IRIDA has the ability to run in a multi-server mode which will distribute these tasks among multiple servers.  This is achieved through the use of Spring profiles.  Deploying IRIDA in this fashion allows IRIDA administrators to maintain good performance for users of the IRIDA web application, while offloading some of the more resource-hungry processing tasks to additional servers.  Multiple profiles may be applied to individual servers to group some of the tasks onto one machine.  
 
-Note: The `prod`, `dev` profiles and cluster configuration profiles below **cannot be used at the same time**.  Doing so may result in corrupt analysis data sets.
+Note: The `prod`, `dev` profiles and multi server configuration profiles below **cannot be used at the same time**.  Doing so may result in corrupt analysis data sets.
 
 The different application profiles and their functions are the following:
 
@@ -175,9 +182,11 @@ The different application profiles and their functions are the following:
 
 To launch an IRIDA application server with one (or more) of these profiles, you must enable the profile with the `spring.profiles.active` variable in your Tomcat configuration.  For example to run an IRIDA server with the `web` and `analysis` profiles active, you would set the following configuration:
 
-`spring.profiles.active=web,analysis`
+```
+spring.profiles.active=web,analysis
+```
 
-See the [Servlet Container Configuration](#servlet-container-configuration) section for more on setting the `spring.profiles.active` variable for Tomcat.
+See the [Servlet Container Configuration](#servlet-container-configuration) section for more on setting the `spring.profiles.active` and `irida.db.profile` variables for Tomcat.
 
 #### Example moderate load deployment:
 

@@ -315,7 +315,11 @@ public class ProjectSamplesPageIT extends AbstractIridaUIITChromeDriver {
 		page.filterByName("5");
 		assertEquals("Should have 17 projects displayed", "Showing 1 to 10 of 17 entries", page.getTableInfo());
 		page.filterByName("52");
-		assertEquals("Should have 17 projects displayed", "Showing 1 to 3 of 3 entries", page.getTableInfo());
+		assertEquals("Should have 3 projects displayed", "Showing 1 to 3 of 3 entries", page.getTableInfo());
+
+		// Make sure that when the filter is applied, only the correct number of samples are selected.
+		page.selectAllSamples();
+		assertEquals("Should only have 3 samples selected", "3 samples selected", page.getSelectedInfoText());
 
 		// Test clearing the filters
 		page.clearFilter();
@@ -334,8 +338,12 @@ public class ProjectSamplesPageIT extends AbstractIridaUIITChromeDriver {
 	public void testFilteringWithDates() {
 		LoginPage.loginAsManager(driver());
 		ProjectSamplesPage page = ProjectSamplesPage.gotToPage(driver(), 1);
-		page.filterByDateRange("07/06/2015", "07/09/2015");
+		page.filterByDateRange("07/06/2015 - 07/09/2015");
 		assertEquals("Should ignore case when filtering", "Showing 1 to 4 of 4 entries", page.getTableInfo());
+
+		// Make sure that when the filter is applied, only the correct number of samples are selected.
+		page.selectAllSamples();
+		assertEquals("Should only have 4 samples selected after filter", "4 samples selected", page.getSelectedInfoText());
 
 		// Test clearing the filters
 		page.clearFilter();
@@ -374,12 +382,16 @@ public class ProjectSamplesPageIT extends AbstractIridaUIITChromeDriver {
 		LoginPage.loginAsManager(driver());
 		ProjectSamplesPage page = ProjectSamplesPage.gotToPage(driver(), 1);
 
-		// Select some samples
-		page.selectSample(0);
-		page.selectSample(1);
+		page.filterByDateRange("07/06/2015 - 07/09/2015");
+		assertEquals("Should ignore case when filtering", "Showing 1 to 4 of 4 entries", page.getTableInfo());
+
+		// Make sure that when the filter is applied, only the correct number of samples are selected.
+		page.selectAllSamples();
+		assertEquals("Should only have 4 samples selected after filter", "4 samples selected", page.getSelectedInfoText());
 
 		// Open the linker modal
-		assertEquals("Should display the correct linker command", "ngsArchiveLinker.pl -p 1 -s 21 -s 20",
+		assertEquals("Should display the correct linker command", "ngsArchiveLinker.pl -p 1 -s 9 -s 8 -s 7 -s 6",
 				page.getLinkerText());
+
 	}
 }
