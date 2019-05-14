@@ -30,6 +30,8 @@ rvm:
 cache:
   directories:
     - $HOME/.m2
+    - $TRAVIS_BUILD_DIR/src/main/webapp/node_modules
+    - $TRAVIS_BUILD_DIR/src/main/webapp/node
 
 before_install:
   - sudo apt-get install libgconf-2-4
