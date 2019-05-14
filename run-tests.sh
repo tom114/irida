@@ -130,8 +130,6 @@ test_galaxy_internal() {
         profile=$1
 	shift
 
-	save_dockerfile
-
 	docker run -d -p $GALAXY_PORT:80 --name $GALAXY_DOCKER_NAME -v $TMP_DIRECTORY:$TMP_DIRECTORY -v $SCRIPT_DIR:$SCRIPT_DIR $GALAXY_DOCKER && \
 	mvn clean verify -B -P$profile -Djdbc.url=$JDBC_URL -Dirida.it.rootdirectory=$TMP_DIRECTORY -Dtest.galaxy.url=$GALAXY_URL -Dtest.galaxy.invalid.url=$GALAXY_INVALID_URL -Dtest.galaxy.invalid.url2=$GALAXY_INVALID_URL2 -Dsequence.file.base.directory=$SEQUENCE_FILE_DIR -Dreference.file.base.directory=$REFERENCE_FILE_DIR -Doutput.file.base.directory=$OUTPUT_FILE_DIR -Djdbc.pool.maxWait=$DB_MAX_WAIT_MILLIS $@
 	exit_code=$?
@@ -161,21 +159,21 @@ test_all() {
 }
 
 save_dockerfile() {
-	if ! test -d "$HOME/docker"; 
-	then
-		mkdir $HOME/docker
-	fi
-	
-	if test -f "$HOME/docker/galaxy.tar.gz";
-	then
-		gunzip -c $HOME/docker/galaxy.tar.gz | docker load
-	fi
-
-	if ! test -f "$HOME/docker/galaxy.tar.gz";
-	then
+#	if ! test -d "$HOME/docker"; 
+#	then
+#		mkdir $HOME/docker
+#	fi
+#	
+#	if test -f "$HOME/docker/galaxy.tar.gz";
+#	then
+#		gunzip -c $HOME/docker/galaxy.tar.gz | docker load
+#	fi
+#
+#	if ! test -f "$HOME/docker/galaxy.tar.gz";
+#	then
 		docker pull $GALAXY_DOCKER
-		docker save phacnml/galaxy-irida-18.09 | gzip > "$HOME/docker/galaxy.tar.gz"
-	fi
+#		docker save phacnml/galaxy-irida-18.09 | gzip > "$HOME/docker/galaxy.tar.gz"
+#	fi
 	
 
 }
@@ -239,6 +237,11 @@ done
 
 exit_code=1
 case "$1" in
+	docker_cache)
+		shift
+		save_dockerfile
+		exit_code=$?
+	;;
 	service_testing)
 		shift
 		pretest_cleanup

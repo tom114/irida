@@ -7,13 +7,6 @@ env:
     - "MYSQL_USER=test"
     - "MYSQL_PASSWORD=test"
     - "DB_MAX_WAIT_MILLIS=30000"
-  matrix:
-    - "TEST_SUITE=galaxy_testing"
-    - "TEST_SUITE=galaxy_pipeline_testing"
-    - "TEST_SUITE=ui_testing"
-    - "TEST_SUITE=doc_testing"
-    - "TEST_SUITE=service_testing"
-    - "TEST_SUITE=rest_testing"
 
 services:
   - docker
@@ -42,4 +35,18 @@ install:
   - gem install jekyll
   - gem install pygments.rb
 
-script: ./run-tests.sh $TEST_SUITE
+stages:
+  - prepare
+  - test
+
+jobs:
+  include:
+    - stage: prepare
+      script: ./run-tests.sh docker_cache
+    - stage: test
+      script: ./run-tests.sh galaxy_testing
+      script: ./run-tests.sh galaxy_pipeline_teting
+      script: ./run-tests.sh ui_testing
+      script: ./run-tests.sh doc_testing
+      script: ./run-tests.sh service_testing
+      script: ./run-tests.sh rest_testing
