@@ -7,6 +7,13 @@ env:
     - "MYSQL_USER=test"
     - "MYSQL_PASSWORD=test"
     - "DB_MAX_WAIT_MILLIS=30000"
+  matrix:
+    - "TEST_SUITE=galaxy_testing"
+    - "TEST_SUITE=galaxy_pipeline_testing"
+    - "TEST_SUITE=ui_testing"
+    - "TEST_SUITE=doc_testing"
+    - "TEST_SUITE=service_testing"
+    - "TEST_SUITE=rest_testing"
 
 services:
   - docker
@@ -43,14 +50,4 @@ jobs:
     - stage: prepare
       script: ./run-tests.sh docker_cache
     - stage: test
-      script: ./run-tests.sh galaxy_testing
-    - stage: test
-      script: ./run-tests.sh galaxy_pipeline_teting
-    - stage: test
-      script: ./run-tests.sh ui_testing
-    - stage: test
-      script: ./run-tests.sh doc_testing
-    - stage: test
-      script: ./run-tests.sh service_testing
-    - stage: test
-      script: ./run-tests.sh rest_testing
+      script: ./run-tests.sh $TEST_SUITE
