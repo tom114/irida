@@ -30,6 +30,7 @@ rvm:
 cache:
   directories:
     - $HOME/.m2
+    - $HOME/docker
 
 before_install:
   - sudo apt-get install libgconf-2-4
