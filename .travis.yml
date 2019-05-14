@@ -23,7 +23,6 @@ rvm:
 cache:
   directories:
     - $HOME/.m2
-    - $HOME/docker
 
 before_install:
   - sudo apt-get install libgconf-2-4
@@ -45,8 +44,13 @@ jobs:
       script: ./run-tests.sh docker_cache
     - stage: test
       script: ./run-tests.sh galaxy_testing
+    - stage: test
       script: ./run-tests.sh galaxy_pipeline_teting
+    - stage: test
       script: ./run-tests.sh ui_testing
+    - stage: test
       script: ./run-tests.sh doc_testing
+    - stage: test
       script: ./run-tests.sh service_testing
+    - stage: test
       script: ./run-tests.sh rest_testing
