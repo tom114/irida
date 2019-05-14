@@ -161,20 +161,20 @@ test_all() {
 }
 
 save_dockerfile() {
-	if [ ! `test -d $HOME/docker` ]; 
+	if ! test -d "$HOME/docker"; 
 	then
 		mkdir $HOME/docker
 	fi
 	
-	if [ `test -f $HOME/docker/galaxy.tar.gz` ];
+	if test -f "$HOME/docker/galaxy.tar.gz";
 	then
 		gunzip -c $HOME/docker/galaxy.tar.gz | docker load
 	fi
 
-	if [ ! `test -f $HOME/docker/galaxy.tar.gz` ];
+	if ! test -f "$HOME/docker/galaxy.tar.gz";
 	then
 		docker pull $GALAXY_DOCKER
-		docker save phacnml/galaxy-irida-18.09 | gzip > $HOME/docker/galaxy.tar.gz
+		docker save phacnml/galaxy-irida-18.09 | gzip > "$HOME/docker/galaxy.tar.gz"
 	fi
 	
 
