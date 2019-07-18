@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Validator;
 
+import ca.corefacility.bioinformatics.irida.service.impl.MetadataEntryOntologyServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -336,6 +337,11 @@ public class IridaApiServicesConfig {
 	public TaxonomyService taxonomyService() throws URISyntaxException {
 		Path path = Paths.get(taxonomyFileLocation.getPath());
 		return new InMemoryTaxonomyService(path);
+	}
+
+	@Bean
+	public MetadataEntryOntologyServiceImpl metadataEntryOntologyService() throws URISyntaxException {
+		return new MetadataEntryOntologyServiceImpl();
 	}
 
 	/**

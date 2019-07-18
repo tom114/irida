@@ -1,9 +1,10 @@
 package ca.corefacility.bioinformatics.irida.service.impl;
 
 import com.google.common.collect.Lists;
-import com.hp.hpl.jena.query.*;
-import com.hp.hpl.jena.rdf.model.Model;
+import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.tdb2.TDB2Factory;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.springframework.core.io.ClassPathResource;
 
@@ -58,20 +59,77 @@ public class MetadataEntryOntologyServiceImpl {
 			"/ca/corefacility/bioinformatics/irida/ontology/genepio/uberon_import.owl",
 			"/ca/corefacility/bioinformatics/irida/ontology/genepio/uo_import.owl");
 
+	private static List<String> FOODON_FILES = Lists.newArrayList(
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/agency_categories.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/ancestro_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/ancestro_import.owl.bak.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/bfo_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/bfo.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/chebi_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/ecocore_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/ecocore.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/efo_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/envo_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/eo_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/eupath_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/foodon.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/foodon_product_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/food_product_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/gaz_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/geem_import2.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/geem_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/hancestro_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/hp_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/langual_deprecated_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/langual_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/metadata_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/ncbitaxon_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/ncit_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/obi_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/pato_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/peco_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/po_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/product_type_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/ro_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/siren_augment_codes.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/siren_augment.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/subset_siren_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/uberon_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/uo_import.owl",
+			"/ca/corefacility/bioinformatics/irida/ontology/foodon/wine_pasta.owl");
+
 	private Model model;
 	private Dataset dataset;
 
 	public MetadataEntryOntologyServiceImpl() {
-		dataset = DatasetFactory.createMem();
+		dataset = TDB2Factory.connectDataset("/tmp/jena");//DatasetFactory.createMem();//TDBFactory.createDataset("/tmp/jena");
 
 		model = dataset.getDefaultModel();
 
-		GENEPIO_FILES.stream()
-				.forEach(f -> {
-					ClassPathResource resource = new ClassPathResource(f);
-					Path path = Paths.get(resource.getPath());
-					RDFDataMgr.read(model, path.toString());
-				});
+		try {
+			dataset.begin(ReadWrite.WRITE);
+			GENEPIO_FILES.stream()
+					.forEach(f -> {
+						ClassPathResource resource = new ClassPathResource(f);
+						Path path = Paths.get(resource.getPath());
+						RDFDataMgr.read(model, path.toString());
+					});
+
+			FOODON_FILES.stream()
+					.forEach(f -> {
+						try {
+							ClassPathResource resource = new ClassPathResource(f);
+							Path path = Paths.get(resource.getPath());
+							RDFDataMgr.read(model, path.toString());
+						} catch (Exception e) {
+							System.out.println("didn't load " + f + " because of " + e.getMessage());
+						}
+					});
+			dataset.commit();
+		}
+		catch(Exception e){
+			System.out.println("bad txn " + e.getMessage());
+		}
 	}
 
 	public List<String> getSymptom(String symptom) {
@@ -88,6 +146,7 @@ public class MetadataEntryOntologyServiceImpl {
 				+ "  FILTER regex(?search, ?term, 'i').}\n";
 		// @formatter:on
 
+		dataset.begin(ReadWrite.READ);
 		ParameterizedSparqlString query = new ParameterizedSparqlString(queryString);
 
 		query.setLiteral("term", QueryParser.escape(symptom));
@@ -103,6 +162,7 @@ public class MetadataEntryOntologyServiceImpl {
 
 			results.add(search);
 		}
+		dataset.end();
 
 		return results;
 	}
@@ -121,6 +181,7 @@ public class MetadataEntryOntologyServiceImpl {
 				+ "  FILTER regex(?search, ?term, 'i').}\n";
 		// @formatter:on
 
+		dataset.begin(ReadWrite.READ);
 		ParameterizedSparqlString query = new ParameterizedSparqlString(queryString);
 
 		query.setLiteral("term", QueryParser.escape(symptom));
@@ -136,6 +197,7 @@ public class MetadataEntryOntologyServiceImpl {
 
 			results.add(search);
 		}
+		dataset.end();
 
 		return results;
 	}
@@ -154,6 +216,7 @@ public class MetadataEntryOntologyServiceImpl {
 				+ "  FILTER regex(?search, ?term, 'i').}\n";
 		// @formatter:on
 
+		dataset.begin(ReadWrite.READ);
 		ParameterizedSparqlString query = new ParameterizedSparqlString(queryString);
 
 		query.setLiteral("term", QueryParser.escape(symptom));
@@ -169,6 +232,45 @@ public class MetadataEntryOntologyServiceImpl {
 
 			results.add(search);
 		}
+		dataset.end();
+
+		return results;
+	}
+
+	public List<String> getFood(String symptom) {
+		// @formatter:off
+		String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
+			+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+			+ "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n"
+			+ "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n"
+			+ "PREFIX obo: <http://purl.obolibrary.org/obo/>\n"
+			+ "PREFIX food: <http://purl.org/foodontology#>\n"
+			+ "\n"
+			+ "SELECT DISTINCT ?subject ?search\n"
+			+ "WHERE {\n"
+			+ "  ?subject ?pred ?search.\n"
+			+ "  ?subject rdfs:subClassOf* obo:FOODON_03400361.\n"
+			+ "  ?subject rdfs:label ?search.\n"
+			+ "  FILTER regex(?search, ?term, 'i').}\n";
+		// @formatter:on
+
+		dataset.begin(ReadWrite.READ);
+		ParameterizedSparqlString query = new ParameterizedSparqlString(queryString);
+
+		query.setLiteral("term", QueryParser.escape(symptom));
+		Query q = query.asQuery();
+		QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
+		ResultSet result = qexec.execSelect();
+
+		List<String> results = new ArrayList<>();
+		while (result.hasNext()) {
+			QuerySolution next = result.next();
+			String search = next.getLiteral("search")
+					.getString();
+
+			results.add(search);
+		}
+		dataset.end();
 
 		return results;
 	}
