@@ -41,7 +41,7 @@ public class DashboardController {
 	}
 
 	@ResponseBody
-	@RequestMapping("git /building")
+	@RequestMapping("/building")
 	public List<String> getBuilding(@RequestParam String query) {
 		return ontologyService.getBuilding(query);
 	}
