@@ -1,5 +1,6 @@
 package ca.corefacility.bioinformatics.irida.ria.web;
 
+import ca.corefacility.bioinformatics.irida.model.sample.metadata.MetadataEntry;
 import ca.corefacility.bioinformatics.irida.service.impl.MetadataEntryOntologyServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,27 +35,33 @@ public class DashboardController {
 		return DASHBOARD_PAGE;
 	}
 
+	@RequestMapping("/onto")
+	@ResponseBody
+	public List<MetadataEntry> searchOnto(@RequestParam String query, @RequestParam String type){
+		return ontologyService.getOntologyTerm(query,type);
+	}
+
 	@ResponseBody
 	@RequestMapping("/symptom")
-	public List<String> getOnto(@RequestParam String query) {
+	public List<MetadataEntry> getOnto(@RequestParam String query) {
 		return ontologyService.getSymptom(query);
 	}
 
 	@ResponseBody
 	@RequestMapping("/building")
-	public List<String> getBuilding(@RequestParam String query) {
+	public List<MetadataEntry> getBuilding(@RequestParam String query) {
 		return ontologyService.getBuilding(query);
 	}
 
 	@ResponseBody
 	@RequestMapping("/body")
-	public List<String> getBodypart(@RequestParam String query) {
+	public List<MetadataEntry> getBodypart(@RequestParam String query) {
 		return ontologyService.getBodypart(query);
 	}
 
 	@ResponseBody
 	@RequestMapping("/food")
-	public List<String> getFood(@RequestParam String query) {
+	public List<MetadataEntry> getFood(@RequestParam String query) {
 		return ontologyService.getFood(query);
 	}
 }

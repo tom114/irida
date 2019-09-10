@@ -1,5 +1,6 @@
 package ca.corefacility.bioinformatics.irida.service.impl;
 
+import ca.corefacility.bioinformatics.irida.model.sample.metadata.MetadataEntry;
 import com.google.common.collect.Lists;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
@@ -102,7 +103,8 @@ public class MetadataEntryOntologyServiceImpl {
 	private Dataset dataset;
 
 	public MetadataEntryOntologyServiceImpl() {
-		dataset = TDB2Factory.connectDataset("/tmp/jena");//DatasetFactory.createMem();//TDBFactory.createDataset("/tmp/jena");
+		dataset = DatasetFactory.create();
+		//dataset = TDB2Factory.connectDataset("/tmp/jena");//DatasetFactory.createMem();//TDBFactory.createDataset("/tmp/jena");
 
 		model = dataset.getDefaultModel();
 
@@ -126,13 +128,27 @@ public class MetadataEntryOntologyServiceImpl {
 						}
 					});
 			dataset.commit();
-		}
-		catch(Exception e){
+		} catch (Exception e) {
 			System.out.println("bad txn " + e.getMessage());
 		}
 	}
 
-	public List<String> getSymptom(String symptom) {
+	public List<MetadataEntry> getOntologyTerm(String term, String datatype) {
+		switch (datatype) {
+		case "symptom":
+			return getSymptom(term);
+		case "building":
+			return getBuilding(term);
+		case "bodypart":
+			return getBodypart(term);
+		case "food":
+			return getFood(term);
+		}
+
+		return null;
+	}
+
+	public List<MetadataEntry> getSymptom(String symptom) {
 		// @formatter:off
 		String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
 				+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
@@ -154,20 +170,12 @@ public class MetadataEntryOntologyServiceImpl {
 		QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
 		ResultSet result = qexec.execSelect();
 
-		List<String> results = new ArrayList<>();
-		while (result.hasNext()) {
-			QuerySolution next = result.next();
-			String search = next.getLiteral("search")
-					.getString();
-
-			results.add(search);
-		}
-		dataset.end();
+		List<MetadataEntry> results = collectResults(result,"search", "symptom");
 
 		return results;
 	}
 
-	public List<String> getBuilding(String symptom) {
+	public List<MetadataEntry> getBuilding(String symptom) {
 		// @formatter:off
 		String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
 				+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
@@ -189,20 +197,12 @@ public class MetadataEntryOntologyServiceImpl {
 		QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
 		ResultSet result = qexec.execSelect();
 
-		List<String> results = new ArrayList<>();
-		while (result.hasNext()) {
-			QuerySolution next = result.next();
-			String search = next.getLiteral("search")
-					.getString();
-
-			results.add(search);
-		}
-		dataset.end();
+		List<MetadataEntry> results = collectResults(result,"search", "building");
 
 		return results;
 	}
 
-	public List<String> getBodypart(String symptom) {
+	public List<MetadataEntry> getBodypart(String symptom) {
 		// @formatter:off
 		String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
 				+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
@@ -224,20 +224,12 @@ public class MetadataEntryOntologyServiceImpl {
 		QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
 		ResultSet result = qexec.execSelect();
 
-		List<String> results = new ArrayList<>();
-		while (result.hasNext()) {
-			QuerySolution next = result.next();
-			String search = next.getLiteral("search")
-					.getString();
-
-			results.add(search);
-		}
-		dataset.end();
+		List<MetadataEntry> results = collectResults(result,"search", "bodypart");
 
 		return results;
 	}
 
-	public List<String> getFood(String symptom) {
+	public List<MetadataEntry> getFood(String symptom) {
 		// @formatter:off
 		String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
 			+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
@@ -262,13 +254,19 @@ public class MetadataEntryOntologyServiceImpl {
 		QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
 		ResultSet result = qexec.execSelect();
 
-		List<String> results = new ArrayList<>();
+		List<MetadataEntry> results = collectResults(result,"search", "food");
+
+		return results;
+	}
+
+	private List<MetadataEntry> collectResults(ResultSet result, String literalName, String datatype) {
+		List<MetadataEntry> results = new ArrayList<>();
 		while (result.hasNext()) {
 			QuerySolution next = result.next();
-			String search = next.getLiteral("search")
+			String search = next.getLiteral(literalName)
 					.getString();
 
-			results.add(search);
+			results.add(new MetadataEntry(search, datatype));
 		}
 		dataset.end();
 
