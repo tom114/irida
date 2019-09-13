@@ -41,7 +41,7 @@ public class DashboardController {
 		return ontologyService.getOntologyTerm(query,type);
 	}
 
-	@ResponseBody
+	/*@ResponseBody
 	@RequestMapping("/symptom")
 	public List<MetadataEntry> getOnto(@RequestParam String query) {
 		return ontologyService.getSymptom(query);
@@ -63,5 +63,5 @@ public class DashboardController {
 	@RequestMapping("/food")
 	public List<MetadataEntry> getFood(@RequestParam String query) {
 		return ontologyService.getFood(query);
-	}
+	}*/
 }

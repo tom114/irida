@@ -1,9 +1,11 @@
 package ca.corefacility.bioinformatics.irida.service.impl;
 
 import ca.corefacility.bioinformatics.irida.model.sample.metadata.MetadataEntry;
+import ca.corefacility.bioinformatics.irida.model.sample.metadata.OntologyMetadataEntry;
 import com.google.common.collect.Lists;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.tdb2.TDB2Factory;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -170,7 +172,7 @@ public class MetadataEntryOntologyServiceImpl {
 		QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
 		ResultSet result = qexec.execSelect();
 
-		List<MetadataEntry> results = collectResults(result,"search", "symptom");
+		List<MetadataEntry> results = collectResults(result, "subject", "search", "symptom");
 
 		return results;
 	}
@@ -197,7 +199,7 @@ public class MetadataEntryOntologyServiceImpl {
 		QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
 		ResultSet result = qexec.execSelect();
 
-		List<MetadataEntry> results = collectResults(result,"search", "building");
+		List<MetadataEntry> results = collectResults(result, "subject", "search", "building");
 
 		return results;
 	}
@@ -224,7 +226,7 @@ public class MetadataEntryOntologyServiceImpl {
 		QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
 		ResultSet result = qexec.execSelect();
 
-		List<MetadataEntry> results = collectResults(result,"search", "bodypart");
+		List<MetadataEntry> results = collectResults(result, "subject", "search", "bodypart");
 
 		return results;
 	}
@@ -254,19 +256,22 @@ public class MetadataEntryOntologyServiceImpl {
 		QueryExecution qexec = QueryExecutionFactory.create(q, dataset);
 		ResultSet result = qexec.execSelect();
 
-		List<MetadataEntry> results = collectResults(result,"search", "food");
+		List<MetadataEntry> results = collectResults(result, "subject", "search", "food");
 
 		return results;
 	}
 
-	private List<MetadataEntry> collectResults(ResultSet result, String literalName, String datatype) {
+	private List<MetadataEntry> collectResults(ResultSet result, String subjectName, String literalName,
+			String datatype) {
 		List<MetadataEntry> results = new ArrayList<>();
 		while (result.hasNext()) {
 			QuerySolution next = result.next();
 			String search = next.getLiteral(literalName)
 					.getString();
+			Resource resource = next.getResource(subjectName);
+			String resourceURI = resource.getURI();
 
-			results.add(new MetadataEntry(search, datatype));
+			results.add(new OntologyMetadataEntry(search, datatype, resourceURI));
 		}
 		dataset.end();
 
