@@ -298,11 +298,14 @@ public class AnalysisController {
 		try {
 			if (submission.getAnalysisState()
 					.equals(AnalysisState.COMPLETED)) {
-				if (analysisType.equals(BuiltInAnalysisTypes.PHYLOGENOMICS) || analysisType.equals(BuiltInAnalysisTypes.MLST_MENTALIST)) {
+				if (analysisType.getViewer()
+						.equals("tree")) {
 					tree(submission, model);
-				} else if (analysisType.equals(BuiltInAnalysisTypes.SISTR_TYPING)) {
+				} else if (analysisType.getViewer()
+						.equals("sistr")) {
 					model.addAttribute("sistr", true);
-				} else if (analysisType.equals(BuiltInAnalysisTypes.BIO_HANSEL)) {
+				} else if (analysisType.getViewer()
+						.equals("hansel")) {
 					model.addAttribute("bio_hansel", true);
 				}
 			}
