@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import ca.corefacility.bioinformatics.irida.model.sequenceFile.SingleEndSequenceFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -276,6 +277,24 @@ public class AnalysisController {
 					.compareTo(b.sample.getLabel());
 		}).collect(Collectors.toList());
 		model.addAttribute("paired_end", sampleFiles);
+
+		// - Single
+		Set<SingleEndSequenceFile> inputFilesSingle = sequencingObjectService.getSequencingObjectsOfTypeForAnalysisSubmission(
+				submission, SingleEndSequenceFile.class);
+		List<SampleSingleFiles> singleFiles = inputFilesSingle.stream().map(SampleSingleFiles::new).sorted((a, b) -> {
+			if (a.sample == null && b.sample == null) {
+				return 0;
+			} else if (a.sample == null) {
+				return -1;
+			} else if (b.sample == null) {
+				return 1;
+			}
+			return a.sample.getLabel()
+					.compareTo(b.sample.getLabel());
+		}).collect(Collectors.toList());
+		model.addAttribute("single_end", singleFiles);
+
+
 
 		// Check if user can update analysis
 		Authentication authentication = SecurityContextHolder.getContext()
@@ -1112,6 +1131,39 @@ public class AnalysisController {
 
 		public SequenceFilePair getSequenceFilePair() {
 			return sequenceFilePair;
+		}
+	}
+
+	/**
+	 * UI Model to return a single end sequence file with its sample
+	 */
+	private class SampleSingleFiles {
+		private Sample sample;
+		private SingleEndSequenceFile singleEndFile;
+
+		SampleSingleFiles(SingleEndSequenceFile singleEndFile) {
+			this.singleEndFile = singleEndFile;
+			try {
+				SampleSequencingObjectJoin sampleSequencingObjectJoin = sampleService.getSampleForSequencingObject(
+						singleEndFile);
+				this.sample = sampleSequencingObjectJoin.getSubject();
+			} catch (Exception e) {
+				logger.debug(
+						"Sequence file [" + singleEndFile.getIdentifier() + "] does not have a parent sample", e);
+				sample = null;
+			}
+		}
+
+		public Long getId() {
+			return singleEndFile.getId();
+		}
+
+		public Sample getSample() {
+			return sample;
+		}
+
+		public SingleEndSequenceFile getSequenceFile() {
+			return singleEndFile;
 		}
 	}
 }
