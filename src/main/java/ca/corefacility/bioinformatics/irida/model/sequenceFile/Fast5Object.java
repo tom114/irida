@@ -22,6 +22,13 @@ public class Fast5Object extends SequencingObject {
 	@NotNull
 	private SequenceFile file;
 
+	protected Fast5Object() {
+	}
+
+	public Fast5Object(SequenceFile file) {
+		this.file = file;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -45,5 +52,9 @@ public class Fast5Object extends SequencingObject {
 	public String getLabel() {
 		return file.getFileName()
 				.toString();
+	}
+
+	public SequenceFile getFile() {
+		return file;
 	}
 }
