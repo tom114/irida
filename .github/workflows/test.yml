@@ -17,6 +17,7 @@ jobs:
           MYSQL_PASSWORD: test
           MYSQL_DATABASE: irida_integration_test
           MYSQL_ROOT_PASSWORD: password
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
     - name: Checkout Project
