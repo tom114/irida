@@ -14,10 +14,13 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Docs build
+    - uses: mirromutth/mysql-action@v1.1
+      with:
+        mysql database: 'irida_integration_test'
+        mysql user: 'test'
+        mysql password: 'test'
+    - name: Service build
       run: | 
-       pushd lib; ./install-libs.sh; popd
-       gem install jekyll
-       gem install pygments.rb
-       ./run-tests.sh doc_testing
+        sudo apt-get install libgconf-2-4
+        ./run-tests.sh service_testing
 
