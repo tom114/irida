@@ -7,6 +7,16 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306
+        env:
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
+          MYSQL_DATABASE: irida_integration_test
+          MYSQL_ROOT_PASSWORD: password
 
     steps:
     - uses: actions/checkout@v2
@@ -14,11 +24,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - uses: mirromutth/mysql-action@v1.1
-      with:
-        mysql database: 'irida_integration_test'
-        mysql user: 'test'
-        mysql password: 'test'
     - name: Service build
       run: | 
         sudo apt-get install libgconf-2-4
