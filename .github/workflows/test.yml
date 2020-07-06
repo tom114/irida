@@ -29,8 +29,10 @@ jobs:
     
     ### Wait for MariaDb to start
     - name: Verify MariaDB connection
+      env:
+        DB_PORT: ${{ job.services.mysql.ports[3306] }}
       run: |
-        while ! mysqladmin ping -h"127.0.0.1" -P"3306" --silent; do
+        while ! mysqladmin ping -h"127.0.0.1" -P"$DB_PORT" --silent; do
           sleep 1
         done
     - name: Service build
