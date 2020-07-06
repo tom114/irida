@@ -15,8 +15,9 @@ jobs:
       with:
         java-version: 11
     - name: Docs build
-      - run: pushd lib; ./install-libs.sh; popd
-      - run: gem install jekyll
-      - run: gem install pygments.rb
-      - run: ./run-tests.sh doc_testing
+    - run: | 
+       pushd lib; ./install-libs.sh; popd
+       gem install jekyll
+       gem install pygments.rb
+       ./run-tests.sh doc_testing
 
