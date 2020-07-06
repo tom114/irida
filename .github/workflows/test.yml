@@ -14,6 +14,9 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: Build with Maven
-      run: mvn --version
+    - name: Docs build
+    - run: pushd lib; ./install-libs.sh; popd
+    - run: gem install jekyll
+    - run: gem install pygments.rb
+    - run: ./run-tests.sh doc_testing
 
