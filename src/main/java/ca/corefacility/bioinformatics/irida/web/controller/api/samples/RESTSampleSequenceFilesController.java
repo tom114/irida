@@ -652,6 +652,16 @@ public class RESTSampleSequenceFilesController {
 
 			SequenceFilePair sequenceFilePair = new SequenceFilePair(sf1, sf2);
 
+			try {
+				sequenceFilePair.getForwardSequenceFile();
+				sequenceFilePair.getReverseSequenceFile();
+			} catch (Exception e) {
+				logger.error("Error creating paired file.  Files do not match forward/reverse naming pattern. "
+						+ sf1.getFileName() + ", " + sf2.getFileName());
+				throw new IllegalArgumentException("Uploaded files do not mach sequence file pairs naming convention",
+						e);
+			}
+
 			if (runId != null) {
 				sequencingRun = sequencingRunService.read(runId);
 				if (sequencingRun.getUploadStatus() != SequencingRunUploadStatus.UPLOADING) {
