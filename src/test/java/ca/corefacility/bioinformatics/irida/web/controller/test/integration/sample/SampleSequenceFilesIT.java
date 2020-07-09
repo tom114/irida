@@ -137,6 +137,34 @@ public class SampleSequenceFilesIT {
 	}
 
 	@Test
+	public void testAddSequenceFilePairToSampleWithBadPairNames() throws IOException {
+		String sampleUri = ITestSystemProperties.BASE_URL + "/api/projects/5/samples/1";
+		Response response = asUser().expect().statusCode(HttpStatus.OK.value()).when().get(sampleUri);
+		String sampleBody = response.getBody().asString();
+		String sequenceFilePairUri = from(sampleBody).getString(
+				"resource.links.find{it.rel == 'sample/sequenceFiles/pairs'}.href");
+
+		Path sequenceFile1 = Files.createTempFile("FileX001", ".fastq");
+		Path sequenceFile2 = Files.createTempFile("FileY001", ".fastq");
+		Files.write(sequenceFile1, FASTQ_FILE_CONTENTS);
+		Files.write(sequenceFile2, FASTQ_FILE_CONTENTS);
+
+		Map<String, String> fileParams = new HashMap<>();
+		fileParams.put("description", "some file");
+
+		Response r = asAdmin().given().contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+				.multiPart("file1", sequenceFile1.toFile())
+				.multiPart("parameters1", fileParams, MediaType.APPLICATION_JSON_VALUE)
+				.multiPart("file2", sequenceFile2.toFile())
+				.multiPart("parameters2", fileParams, MediaType.APPLICATION_JSON_VALUE).expect()
+				.statusCode(HttpStatus.BAD_REQUEST.value()).when().post(sequenceFilePairUri);
+
+		// clean up
+		Files.delete(sequenceFile1);
+		Files.delete(sequenceFile2);
+	}
+
+	@Test
 	public void testAddSequenceFileToSampleWithOptionalProperties() throws IOException {
 		String sampleUri = ITestSystemProperties.BASE_URL + "/api/projects/5/samples/1";
 		Response response = asUser().expect().statusCode(HttpStatus.OK.value()).when().get(sampleUri);
