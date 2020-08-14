@@ -157,7 +157,7 @@ public class AnalysisController {
 				.getAnalysisType();
 
 		Optional<String> viewerForAnalysisType = analysisTypesService.getViewerForAnalysisType(analysisType);
-
+		viewerForAnalysisType = Optional.of("tree");
 		if (viewerForAnalysisType.isPresent()) {
 			model.addAttribute("viewer", viewerForAnalysisType.get());
 		} else {
