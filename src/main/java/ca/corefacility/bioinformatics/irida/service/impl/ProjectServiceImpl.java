@@ -376,6 +376,12 @@ public class ProjectServiceImpl extends CRUDServiceImpl<Long, Project> implement
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	@LaunchesProjectEvent(SampleAddedProjectEvent.class)
 	@PreAuthorize("hasPermission(#project, 'isProjectOwner') and hasPermission(#sample, 'canReadSample')"
 			+ " and ((not #giveOwner) or hasPermission(#sample, 'canUpdateSample'))")
 	public ProjectSampleJoin addExistingSampleToProject(Project project, @Valid Sample sample, boolean owner) {

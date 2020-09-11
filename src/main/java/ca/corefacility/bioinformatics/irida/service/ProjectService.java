@@ -137,6 +137,14 @@ public interface ProjectService extends CRUDService<Long, Project> {
 	 */
 	public Join<Project, Sample> createNewSampleInProject(Project project, Sample sample);
 
+	/**
+	 * Share an existing sample to a given project
+	 *
+	 * @param project the project to share the sample to
+	 * @param sample  the sample to share
+	 * @param owner   whether to grant modification access to the sample in the new project
+	 * @return the newly created join
+	 */
 	public ProjectSampleJoin addExistingSampleToProject(Project project, @Valid Sample sample, boolean owner);
 
 	/**

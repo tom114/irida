@@ -88,8 +88,9 @@ public class RESTProjectSamplesController {
 	 *
 	 * @param projectId the project to copy the sample to.
 	 * @param sampleIds the collection of sample IDs to copy.
+	 * @param owner     Whether the new project should have write access to this sample
 	 * @param response  a reference to the servlet response.
-	 * @param locale The user's in case a warning message is needed
+	 * @param locale    The user's in case a warning message is needed
 	 * @return the response indicating that the sample was joined to the
 	 * project.
 	 */

@@ -298,11 +298,11 @@ public class ProjectServiceImplIT {
 
 	@Test
 	@WithMockUser(username = "admin", roles = "ADMIN")
-	public void testAddSampleToProject() {
+	public void testAddExistingSampleToProject() {
 		Sample s = sampleService.read(1L);
 		Project p = projectService.read(1L);
 
-		Join<Project, Sample> join = projectService.createNewSampleInProject(p, s);
+		Join<Project, Sample> join = projectService.addExistingSampleToProject(p, s, false);
 		assertEquals("Project should equal original project.", p, join.getSubject());
 		assertEquals("Sample should equal orginal sample.", s, join.getObject());
 
@@ -316,8 +316,8 @@ public class ProjectServiceImplIT {
 		Sample s = sampleService.read(1L);
 		Project p = projectService.read(1L);
 
-		projectService.createNewSampleInProject(p, s);
-		projectService.createNewSampleInProject(p, s);
+		projectService.addExistingSampleToProject(p, s, false);
+		projectService.addExistingSampleToProject(p, s, false);
 	}
 
 	@Test(expected = EntityExistsException.class)
@@ -326,7 +326,7 @@ public class ProjectServiceImplIT {
 		Sample s = sampleService.read(1L);
 		Project p = projectService.read(1L);
 
-		projectService.createNewSampleInProject(p, s);
+		projectService.addExistingSampleToProject(p, s, false);
 
 		Sample otherSample = new Sample(s.getSampleName());
 
