@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -303,7 +302,7 @@ public class ProjectServiceImplIT {
 		Sample s = sampleService.read(1L);
 		Project p = projectService.read(1L);
 
-		Join<Project, Sample> join = projectService.addSampleToProject(p, s, true);
+		Join<Project, Sample> join = projectService.createNewSampleInProject(p, s);
 		assertEquals("Project should equal original project.", p, join.getSubject());
 		assertEquals("Sample should equal orginal sample.", s, join.getObject());
 
@@ -317,8 +316,8 @@ public class ProjectServiceImplIT {
 		Sample s = sampleService.read(1L);
 		Project p = projectService.read(1L);
 
-		projectService.addSampleToProject(p, s, true);
-		projectService.addSampleToProject(p, s, true);
+		projectService.createNewSampleInProject(p, s);
+		projectService.createNewSampleInProject(p, s);
 	}
 
 	@Test(expected = EntityExistsException.class)
@@ -327,11 +326,11 @@ public class ProjectServiceImplIT {
 		Sample s = sampleService.read(1L);
 		Project p = projectService.read(1L);
 
-		projectService.addSampleToProject(p, s, true);
+		projectService.createNewSampleInProject(p, s);
 
 		Sample otherSample = new Sample(s.getSampleName());
 
-		projectService.addSampleToProject(p, otherSample, true);
+		projectService.createNewSampleInProject(p, otherSample);
 
 		// if 2 exist with the same id, this call will fail
 		Sample sampleBySequencerSampleId = sampleService.getSampleBySampleName(p, otherSample.getSampleName());
@@ -385,7 +384,7 @@ public class ProjectServiceImplIT {
 		Project p = projectService.read(1L);
 		Sample s = s();
 
-		Join<Project, Sample> join = projectService.addSampleToProject(p, s, true);
+		Join<Project, Sample> join = projectService.createNewSampleInProject(p, s);
 		assertNotNull("Join should not be empty.", join);
 		assertEquals("Wrong project in join.", p, join.getSubject());
 		assertEquals("Wrong sample in join.", s, join.getObject());

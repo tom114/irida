@@ -302,7 +302,7 @@ public class ProjectSynchronizationService {
 			// if the sample doesn't already exist create it
 			sample.getRemoteStatus().setSyncStatus(SyncStatus.UPDATING);
 			localSample = sampleService.create(sample);
-			projectService.addSampleToProject(project, sample, true);
+			projectService.createNewSampleInProject(project, sample);
 		}
 
 		//get a collection of the files already sync'd.  we don't want to grab them a 2nd time.

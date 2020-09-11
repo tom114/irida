@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.validation.Valid;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -126,15 +128,16 @@ public interface ProjectService extends CRUDService<Long, Project> {
 			ProjectRole projectRole) throws ProjectWithoutOwnerException;
 
 	/**
-	 * Add the specified {@link Sample} to the {@link Project}.
+	 * Create a new {@link Sample} to the given {@link Project}.
 	 *
 	 * @param project the {@link Project} to add the {@link Sample} to.
 	 * @param sample  the {@link Sample} to add to the {@link Project}. If the {@link Sample} has not previously been persisted, the
 	 *                service will persist the {@link Sample}.
-	 * @param owner   Whether the project will have modification access for this sample
 	 * @return a reference to the relationship resource created between the two entities.
 	 */
-	public Join<Project, Sample> addSampleToProject(Project project, Sample sample, boolean owner);
+	public Join<Project, Sample> createNewSampleInProject(Project project, Sample sample);
+
+	public ProjectSampleJoin addExistingSampleToProject(Project project, @Valid Sample sample, boolean owner);
 
 	/**
 	 * Move a {@link Sample} from one {@link Project} to another

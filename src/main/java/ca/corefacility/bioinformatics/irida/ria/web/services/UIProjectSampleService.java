@@ -96,7 +96,7 @@ public class UIProjectSampleService {
 			if (!Strings.isNullOrEmpty(request.getOrganism())) {
 				sample.setOrganism(request.getOrganism());
 			}
-			Join<Project, Sample> join = projectService.addSampleToProject(project, sample, true);
+			Join<Project, Sample> join = projectService.createNewSampleInProject(project, sample);
 			return ResponseEntity.ok(new AjaxCreateItemSuccessResponse(join.getObject()
 					.getId()));
 		} catch (EntityNotFoundException e) {

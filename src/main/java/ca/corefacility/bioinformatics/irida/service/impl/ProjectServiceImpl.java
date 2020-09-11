@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.persistence.criteria.*;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
 import javax.validation.Validator;
 
 import org.slf4j.Logger;
@@ -340,15 +341,12 @@ public class ProjectServiceImpl extends CRUDServiceImpl<Long, Project> implement
 	@Transactional
 	@LaunchesProjectEvent(SampleAddedProjectEvent.class)
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SEQUENCER') or (hasPermission(#project, 'isProjectOwner'))")
-	public ProjectSampleJoin addSampleToProject(Project project, Sample sample, boolean owner) {
+	public ProjectSampleJoin createNewSampleInProject(Project project, Sample sample) {
 		logger.trace("Adding sample to project.");
 
 		//if the sample exists, ensure it isn't already on the project
 		if (sample.getId() != null) {
-			if (psjRepository.readSampleForProject(project, sample) != null) {
-				throw new EntityExistsException(
-						"Sample [" + sample.getId() + "] has already been added to project [" + project.getId() + "]");
-			}
+			throw new IllegalArgumentException("Samples provided to this method must not have been persisted to the database");
 		}
 
 		// Check to ensure a sample with this sequencer id doesn't exist in this
@@ -359,19 +357,37 @@ public class ProjectServiceImpl extends CRUDServiceImpl<Long, Project> implement
 							+ project.getId(), sample);
 		}
 
-		// the sample hasn't been persisted before, persist it before calling
-		// the relationshipRepository.
-		if (sample.getId() == null) {
-			logger.trace("Going to validate and persist sample prior to creating relationship.");
-			// validate the sample, then persist it:
-			Set<ConstraintViolation<Sample>> constraintViolations = validator.validate(sample);
-			if (constraintViolations.isEmpty()) {
-				sample = sampleRepository.save(sample);
-			} else {
-				throw new ConstraintViolationException(constraintViolations);
-			}
+		logger.trace("Going to validate and persist sample prior to creating relationship.");
+		// validate the sample, then persist it:
+		Set<ConstraintViolation<Sample>> constraintViolations = validator.validate(sample);
+		if (constraintViolations.isEmpty()) {
+			sample = sampleRepository.save(sample);
+		} else {
+			throw new ConstraintViolationException(constraintViolations);
 		}
 
+		ProjectSampleJoin join = new ProjectSampleJoin(project, sample, true);
+
+		try {
+			return psjRepository.save(join);
+		} catch (DataIntegrityViolationException e) {
+			throw new EntityExistsException(
+					"Sample [" + sample.getId() + "] has already been added to project [" + project.getId() + "]");
+		}
+	}
+
+	@PreAuthorize("hasPermission(#project, 'isProjectOwner') and hasPermission(#sample, 'canReadSample')"
+			+ " and ((not #giveOwner) or hasPermission(#sample, 'canUpdateSample'))")
+	public ProjectSampleJoin addExistingSampleToProject(Project project, @Valid Sample sample, boolean owner) {
+		logger.trace("Adding sample to project.");
+
+		// Check to ensure a sample with this sequencer id doesn't exist in this
+		// project already
+		if (sampleRepository.getSampleBySampleName(project, sample.getSampleName()) != null) {
+			throw new ExistingSampleNameException(
+					"Sample with sequencer id '" + sample.getSampleName() + "' already exists in project "
+							+ project.getId(), sample);
+		}
 		ProjectSampleJoin join = new ProjectSampleJoin(project, sample, owner);
 
 		try {
@@ -394,7 +410,7 @@ public class ProjectServiceImpl extends CRUDServiceImpl<Long, Project> implement
 		ProjectSampleJoin projectSampleJoin = psjRepository.readSampleForProject(source, sample);
 
 		//set the ownership on the sample given the existing permissions
-		ProjectSampleJoin join = addSampleToProject(destination, sample, projectSampleJoin.isOwner());
+		ProjectSampleJoin join = addExistingSampleToProject(destination, sample, projectSampleJoin.isOwner());
 
 		//remove the old join
 		removeSampleFromProject(source, sample);
@@ -417,7 +433,7 @@ public class ProjectServiceImpl extends CRUDServiceImpl<Long, Project> implement
 		List<ProjectSampleJoin> newJoins = new ArrayList<>();
 
 		for (Sample sample : samples) {
-			ProjectSampleJoin newJoin = addSampleToProject(destination, sample, giveOwner);
+			ProjectSampleJoin newJoin = addExistingSampleToProject(destination, sample, giveOwner);
 
 			logger.trace("Shared sample " + sample.getId() + " to project " + destination.getId());
 
@@ -742,7 +758,7 @@ public class ProjectServiceImpl extends CRUDServiceImpl<Long, Project> implement
 
 		sampleIds.forEach(sid -> {
 			Sample s = sampleRepository.findById(sid).orElse(null);
-			addSampleToProject(project, s, owner);
+			addExistingSampleToProject(project, s, owner);
 		});
 
 		return created;

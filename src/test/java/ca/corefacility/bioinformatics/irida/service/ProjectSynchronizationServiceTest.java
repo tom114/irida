@@ -4,7 +4,7 @@ import java.util.Date;
 
 import ca.corefacility.bioinformatics.irida.exceptions.IridaOAuthException;
 import ca.corefacility.bioinformatics.irida.model.assembly.UploadedAssembly;
-import ca.corefacility.bioinformatics.irida.service.impl.TestEmailController;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -167,7 +167,7 @@ public class ProjectSynchronizationServiceTest {
 		
 		syncService.syncSample(sample, expired, Maps.newHashMap());
 		
-		verify(projectService).addSampleToProject(expired, sample, true);
+		verify(projectService).createNewSampleInProject(expired, sample);
 		
 		assertEquals(SyncStatus.SYNCHRONIZED,sample.getRemoteStatus().getSyncStatus());
 	}
@@ -185,7 +185,7 @@ public class ProjectSynchronizationServiceTest {
 		
 		syncService.syncSample(sample, expired, ImmutableMap.of("http://sample",existingSample));
 		
-		verify(projectService,times(0)).addSampleToProject(expired, sample, true);
+		verify(projectService,times(0)).createNewSampleInProject(expired, sample);
 		verify(sampleService,times(2)).update(any(Sample.class));
 	}
 	
