@@ -17,10 +17,10 @@ env:
 
 services:
   - docker
-  - mysql
 
 addons:
   chrome: stable
+  mariadb: '10.5'
 
 dist: xenial
 
