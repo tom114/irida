@@ -38,7 +38,7 @@ before_install:
   - sudo apt-get install libgconf-2-4
 
 install:
-  - mysql -e "CREATE USER '$MYSQL_USER'@'localhost' IDENTIFIED BY '$MYSQL_PASSWORD'; GRANT ALL ON $MYSQL_DATABASE.* to '$MYSQL_USER'@'localhost';"
+  - sudo mysql -e "CREATE USER '$MYSQL_USER'@'localhost' IDENTIFIED BY '$MYSQL_PASSWORD'; GRANT ALL ON $MYSQL_DATABASE.* to '$MYSQL_USER'@'localhost';"
   - mvn -version
   - pushd lib; ./install-libs.sh; popd
   - gem install jekyll
