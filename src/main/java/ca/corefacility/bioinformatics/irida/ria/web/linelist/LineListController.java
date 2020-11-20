@@ -69,11 +69,12 @@ public class LineListController {
 	 * {@link  Sample}s in a {@link Project}
 	 *
 	 * @param projectId {@link Long} identifier for a {@link Project}
+	 * @param fieldIds  List of metadata field IDs to return
 	 * @return {@link List} of {@link UISampleMetadata}s of all {@link Sample} metadata in a {@link Project}
 	 */
 	@RequestMapping(value = "/entries", method = RequestMethod.GET)
 	@ResponseBody
-	public List<UISampleMetadata> getProjectSamplesMetadataEntries(@RequestParam long projectId) {
+	public List<UISampleMetadata> getProjectSamplesMetadataEntries(@RequestParam long projectId, List<Long> fieldIds) {
 		Authentication authentication = SecurityContextHolder.getContext()
 				.getAuthentication();
 		Project project = projectService.read(projectId);
