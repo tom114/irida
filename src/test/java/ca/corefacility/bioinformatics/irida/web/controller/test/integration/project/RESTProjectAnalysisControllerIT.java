@@ -5,9 +5,9 @@ import static ca.corefacility.bioinformatics.irida.web.controller.test.integrati
 import static ca.corefacility.bioinformatics.irida.web.controller.test.integration.util.ITestAuthUtils.asUser;
 import static org.hamcrest.Matchers.hasItems;
 
-import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -41,7 +41,7 @@ public class RESTProjectAnalysisControllerIT {
 
 	@Test
 	public void testGetProjectAnalysisAsAdmin() {
-		asAdmin().get(ITestSystemProperties.BASE_URL + ANALYSIS_PROJECT_BASE).then().statusCode(HttpStatus.OK_200)
+		asAdmin().get(ITestSystemProperties.BASE_URL + ANALYSIS_PROJECT_BASE).then().statusCode(HttpStatus.OK.value())
 				.body("resource.resources.identifier", hasItems("1", "2", "3"));
 	}
 
@@ -54,24 +54,24 @@ public class RESTProjectAnalysisControllerIT {
 	@Test
 	public void testGetProjectAnalysisAsOtherUser() {
 		asOtherUser().get(ITestSystemProperties.BASE_URL + ANALYSIS_PROJECT_BASE).then()
-				.statusCode(HttpStatus.FORBIDDEN_403);
+				.statusCode(HttpStatus.FORBIDDEN.value());
 	}
 
 	@Test
 	public void testGetProjectAnalysisByTypeAsAdmin() {
-		asAdmin().get(ITestSystemProperties.BASE_URL + ANALYSIS_SISTR_BASE).then().statusCode(HttpStatus.OK_200)
+		asAdmin().get(ITestSystemProperties.BASE_URL + ANALYSIS_SISTR_BASE).then().statusCode(HttpStatus.OK.value())
 				.body("resource.resources.identifier", hasItems("2", "3"));
 	}
 
 	@Test
 	public void testGetProjectAnalysisByTypeUser() {
-		asUser().get(ITestSystemProperties.BASE_URL + ANALYSIS_SISTR_BASE).then().statusCode(HttpStatus.OK_200)
+		asUser().get(ITestSystemProperties.BASE_URL + ANALYSIS_SISTR_BASE).then().statusCode(HttpStatus.OK.value())
 				.body("resource.resources.identifier", hasItems("2", "3"));
 	}
 
 	@Test
 	public void testGetProjectAnalysisByTypeAsOtherUser() {
 		asOtherUser().get(ITestSystemProperties.BASE_URL + ANALYSIS_SISTR_BASE).then()
-				.statusCode(HttpStatus.FORBIDDEN_403);
+				.statusCode(HttpStatus.FORBIDDEN.value());
 	}
 }

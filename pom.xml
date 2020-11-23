@@ -257,11 +257,6 @@
 			<artifactId>commons-net</artifactId>
 			<version>${commons.net.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>javax.interceptor</groupId>
-			<artifactId>javax.interceptor-api</artifactId>
-			<version>${javax.interceptor-api.version}</version>
-		</dependency>
 
 		<!-- RDF Database -->
 		<dependency>
