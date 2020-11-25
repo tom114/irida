@@ -9,6 +9,7 @@ jobs:
 
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         suite: ['service_testing', 'rest_testing', 'doc_testing']
 
@@ -23,7 +24,7 @@ jobs:
       with:
         java-version: 11
     - name: Install libraries
-      run: pushd lib; ./install-libs.sh; popd
+      run: pushd lib; ./install-libs.sh; popd; gem install jekyll; gem install pygments.rb
     - name: Build with Maven
       run: ./run-tests.sh ${{ matrix.suite }}
 
