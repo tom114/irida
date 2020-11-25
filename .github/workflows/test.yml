@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ['service_testing', 'rest_testing', 'ui_testing', 'doc_testing']
+        suite: ['service_testing', 'rest_testing', 'ui_testing', 'doc_testing', 'galaxy_testing', 'galaxy_pipeline_testing']
 
     steps:
     - uses: actions/checkout@v2
