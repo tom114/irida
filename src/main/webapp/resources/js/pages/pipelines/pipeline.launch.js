@@ -308,7 +308,7 @@ function PipelineController(
    * @param sampleId the sample if to remove
    */
   vm.removeSample = function (projectId, sampleId) {
-    removeSample(projectId, sampleId).then(({ count }) => {
+    removeSample(projectId, sampleId).then((count) => {
       // Update the cart
       const event = new CustomEvent(CART.UPDATED, { detail: { count } });
       document.dispatchEvent(event);
@@ -658,7 +658,7 @@ function FileUploadCtrl($rootScope, Upload) {
   };
 }
 
-const pipelineModule = angular
+angular
   .module("irida.pipelines", ["ui.bootstrap", "ngFileUpload"])
   .controller("PipelineController", [
     "$rootScope",
@@ -682,6 +682,4 @@ const pipelineModule = angular
   .controller("FileUploadCtrl", ["$rootScope", "Upload", FileUploadCtrl])
   .service("ParameterService", [ParameterService])
   .service("DynamicSourceService", [DynamicSourceService])
-  .service("ParametersWithChoicesService", [ParametersWithChoicesService]).name;
-
-angular.module("irida").requires.push(pipelineModule);
+  .service("ParametersWithChoicesService", [ParametersWithChoicesService]);
