@@ -24,7 +24,7 @@ jobs:
       with:
         java-version: 11
     - name: Install libraries
-      run: pushd lib; ./install-libs.sh; popd; gem install jekyll; gem install pygments.rb
+      run: pushd lib; ./install-libs.sh; popd; sudo gem install jekyll; sudo gem install pygments.rb
     - name: Build with Maven
       run: ./run-tests.sh ${{ matrix.suite }}
 
