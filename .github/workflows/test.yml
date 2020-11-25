@@ -26,5 +26,5 @@ jobs:
     - name: Install libraries
       run: pushd lib; ./install-libs.sh; popd
     - name: Build with Maven
-      run: mvn test
+      run: ./run-tests.sh service_testing
 
