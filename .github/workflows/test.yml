@@ -8,6 +8,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        suite: ['service_testing', 'rest_testing', 'doc_testing']
 
     steps:
     - uses: actions/checkout@v2
@@ -15,14 +18,6 @@ jobs:
       run: sudo /etc/init.d/mysql start
     - name: 'Database setup'
       run: mysql -uroot -proot -e "CREATE USER 'test'@'localhost' IDENTIFIED BY 'test'; GRANT ALL ON irida_integration_test.* to 'test'@'localhost';"
-    #- uses: mirromutth/mysql-action@v1.1
-    #  with:
-    #    character set server: 'utf8'
-    #    collation server: 'utf8_general_ci' 
-    #    mysql version: '5.7'
-    #    mysql database: 'irida_integration_test'
-    #    mysql user: 'test'
-    #    mysql password: 'test'
     - name: Set up JDK 11
       uses: actions/setup-java@v1
       with:
@@ -30,5 +25,5 @@ jobs:
     - name: Install libraries
       run: pushd lib; ./install-libs.sh; popd
     - name: Build with Maven
-      run: ./run-tests.sh service_testing
+      run: ./run-tests.sh ${{ matrix.suite }}
 
