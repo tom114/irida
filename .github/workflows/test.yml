@@ -11,6 +11,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Start database
+      run: sudo /etc/init.d/mysql start
     - name: 'Database setup'
       run: mysql -uroot -proot -e "CREATE USER 'test'@'localhost' IDENTIFIED BY 'test'; GRANT ALL ON irida_integration_test.* to 'test'@'localhost';"
     #- uses: mirromutth/mysql-action@v1.1
