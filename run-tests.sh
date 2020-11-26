@@ -35,19 +35,19 @@ then
 fi
 
 check_dependencies() {
-	mvn --version 1>/dev/null 2>/dev/null
+	mvn --version
 	if [ $? -ne 0 ];
 	then
 		exit_error "Command 'mvn' does not exist.  Please install Maven (e.g., 'apt-get install maven') to continue."
 	fi
 
-	docker --version 1>/dev/null 2>/dev/null
+	docker --version
 	if [ $? -ne 0 ];
 	then
 		exit_error "Command 'docker' does not exist.  Please install Docker (e.g., 'curl -sSL https://get.docker.com/ | sh') to continue."
 	fi
 
-	mysql --version 1>/dev/null 2>/dev/null
+	mysql --version
 	if [ $? -ne 0 ];
 	then
 		exit_error "Command 'mysql' does not exist.  Please install MySQL/MariaDB (e.g., 'apt-get install mariadb-client mariadb-server') to continue."
