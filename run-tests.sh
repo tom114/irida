@@ -5,9 +5,7 @@ SCRIPT_DIR=`pwd`
 DATABASE_NAME=irida_integration_test
 DATABASE_USER=test
 DATABASE_PASSWORD=test
-DATABASE_HOST=localhost
-DATABASE_PORT=3306
-JDBC_URL=jdbc:mysql://$DATABASE_HOST:$DATABASE_PORT/$DATABASE_NAME
+JDBC_URL=jdbc:mysql://localhost:3306/$DATABASE_NAME
 TMP_DIRECTORY=`mktemp -d /tmp/irida-test-XXXXXXXX`
 chmod 777 $TMP_DIRECTORY # Needs to be world-accessible so that Docker/Galaxy can access
 
@@ -37,19 +35,19 @@ then
 fi
 
 check_dependencies() {
-	mvn --version
+	mvn --version 1>/dev/null 2>/dev/null
 	if [ $? -ne 0 ];
 	then
 		exit_error "Command 'mvn' does not exist.  Please install Maven (e.g., 'apt-get install maven') to continue."
 	fi
 
-	docker --version
+	docker --version 1>/dev/null 2>/dev/null
 	if [ $? -ne 0 ];
 	then
 		exit_error "Command 'docker' does not exist.  Please install Docker (e.g., 'curl -sSL https://get.docker.com/ | sh') to continue."
 	fi
 
-	mysql --version
+	mysql --version 1>/dev/null 2>/dev/null
 	if [ $? -ne 0 ];
 	then
 		exit_error "Command 'mysql' does not exist.  Please install MySQL/MariaDB (e.g., 'apt-get install mariadb-client mariadb-server') to continue."
@@ -64,13 +62,13 @@ pretest_cleanup() {
 		DB_ERR="Failed to clean/create new database named '$DATABASE_NAME'. Perhaps you need to grant permission first with 'echo \"grant all privileges on $DATABASE_NAME.* to '$DATABASE_USER'@'localhost';\" | mysql -u root -p'."
 
 		set -x
-		echo "drop database if exists $DATABASE_NAME; create database $DATABASE_NAME;" | mysql -P $DATABASE_PORT -h $DATABASE_HOST -u$DATABASE_USER -p$DATABASE_PASSWORD
+		echo "drop database if exists $DATABASE_NAME; create database $DATABASE_NAME;" | mysql -u$DATABASE_USER -p$DATABASE_PASSWORD
 		if [ $? -ne 0 ];
 		then
 			set +x
 			exit_error $DB_ERR
 		fi
-		mysql --P $DATABASE_PORT -h $DATABASE_HOST u$DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME < $SCRIPT_DIR/ci/irida_latest.sql
+		mysql -u$DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME < $SCRIPT_DIR/ci/irida_latest.sql
 		if [ $? -ne 0 ];
 		then
 			set +x
@@ -213,22 +211,12 @@ check_dependencies
 
 cd $SCRIPT_DIR
 
-while [ "$1" = "--database" -o "$1" = "-d" -o "$1" = "--db-host" -o "$1" = "--db-port" -o "$1" = "--no-kill-docker" -o "$1" = "-c" -o "$1" = "--no-cleanup" -o "$1" = "--no-headless" -o "$1" = "--selenium-docker" ];
+while [ "$1" = "--database" -o "$1" = "-d" -o "$1" = "--no-kill-docker" -o "$1" = "-c" -o "$1" = "--no-cleanup" -o "$1" = "--no-headless" -o "$1" = "--selenium-docker" ];
 do
 	if [ "$1" = "--database" -o "$1" = "-d" ];
 	then
 		shift
 		DATABASE_NAME=$1
-		shift
-	elif [ "$1" = "--db-host" ];
-	then
-		shift
-		DATABASE_HOST=$1
-		shift
-	elif [ "$1" = "--db-port" ];
-	then
-		shift
-		DATABASE_PORT=$1
 		shift
 	elif [ "$1" = "--no-kill-docker" ];
 	then
