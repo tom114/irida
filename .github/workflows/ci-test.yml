@@ -48,5 +48,5 @@ jobs:
       - name: Install libraries # Install our non-maven backed dependencies, and docs requirements
         run: pushd lib; ./install-libs.sh; popd; sudo gem install jekyll; sudo gem install pygments.rb
       - name: Run tests with Maven # Run the test suite
-        run: ./run-tests.sh --db-host localhost --db-port 3306 ${{ matrix.suite }}
+        run: ./run-tests.sh --db-host 127.0.0.1 --db-port 3306 ${{ matrix.suite }}
 
