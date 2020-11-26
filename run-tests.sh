@@ -222,10 +222,12 @@ do
 		shift
 	elif [ "$1" = "--db-host" ];
 	then
+		shift
 		DATABASE_HOST=$1
 		shift
 	elif [ "$1" = "--db-port" ];
 	then
+		shift
 		DATABASE_PORT=$1
 		shift
 	elif [ "$1" = "--no-kill-docker" ];
