@@ -57,6 +57,8 @@ check_dependencies() {
 }
 
 pretest_cleanup() {
+  JDBC_URL=jdbc:mysql://$DATABASE_HOST:$DATABASE_PORT/$DATABASE_NAME
+
 	if [ "$NO_CLEANUP" = true ];
 	then
 		return
