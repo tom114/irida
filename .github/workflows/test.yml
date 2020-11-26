@@ -19,9 +19,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        key: ${{ runner.os }}-maven
         restore-keys: |
-          ${{ runner.os }}-maven-
+          ${{ runner.os }}-maven
     - name: Start database
       run: sudo /etc/init.d/mysql start
     - name: 'Database setup'
