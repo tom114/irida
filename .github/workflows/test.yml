@@ -27,8 +27,8 @@ jobs:
       with:
         path: '**/node_modules'
         key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-    - name: Start database
-      run: sudo /etc/init.d/mysql start
+    #- name: Start database
+    #  run: sudo /etc/init.d/mysql start
     - name: 'Database setup'
       uses: mirromutth/mysql-action@v1.1
       with:
