@@ -47,13 +47,6 @@ jobs:
           java-version: 11
       - name: Install libraries # Install our non-maven backed dependencies, and docs requirements
         run: pushd lib; ./install-libs.sh; popd; sudo gem install jekyll; sudo gem install pygments.rb
-      - name: Verify MySQL connection
-          env:
-            PORT: 3306
-          run: |
-            while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
-              sleep 1
-            done
       - name: Run tests with Maven # Run the test suite
-        run: ./run-tests.sh ${{ matrix.suite }}
+        run: ./run-tests.sh --db-host localhost --db-port 3306 ${{ matrix.suite }}
 
