@@ -6,7 +6,19 @@ on:
 
 jobs:
   integration-tests:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
+          MYSQL_DATABASE: irida_integration_test
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     strategy:
       fail-fast: false  #Setting so that if one of the test suites fail, the other will continue
       matrix:
@@ -25,10 +37,10 @@ jobs:
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-      - name: Start database # Starts mysql on the server
-        run: sudo /etc/init.d/mysql start
-      - name: 'Database setup' # Creates the database and user for the tests
-        run: mysql -uroot -proot -e "CREATE USER 'test'@'localhost' IDENTIFIED BY 'test'; GRANT ALL ON irida_integration_test.* to 'test'@'localhost';"
+      #- name: Start database # Starts mysql on the server
+      #  run: sudo /etc/init.d/mysql start
+      #- name: 'Database setup' # Creates the database and user for the tests
+      #  run: mysql -uroot -proot -e "CREATE USER 'test'@'localhost' IDENTIFIED BY 'test'; GRANT ALL ON irida_integration_test.* to 'test'@'localhost';"
       - name: Set up JDK 11 # Installs java 11
         uses: actions/setup-java@v1
         with:
