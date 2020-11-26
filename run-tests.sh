@@ -213,7 +213,7 @@ check_dependencies
 
 cd $SCRIPT_DIR
 
-while [ "$1" = "--database" -o "$1" = "-d" -o "$1" = "-db-host" -o "$1" = "-db-port" -o "$1" = "--no-kill-docker" -o "$1" = "-c" -o "$1" = "--no-cleanup" -o "$1" = "--no-headless" -o "$1" = "--selenium-docker" ];
+while [ "$1" = "--database" -o "$1" = "-d" -o "$1" = "--db-host" -o "$1" = "--db-port" -o "$1" = "--no-kill-docker" -o "$1" = "-c" -o "$1" = "--no-cleanup" -o "$1" = "--no-headless" -o "$1" = "--selenium-docker" ];
 do
 	if [ "$1" = "--database" -o "$1" = "-d" ];
 	then
