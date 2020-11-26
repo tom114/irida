@@ -32,6 +32,7 @@ jobs:
     - name: 'Database setup'
       uses: mirromutth/mysql-action@v1.1
       with:
+        host port: 3800
         character set server: 'utf8'
         collation server: 'utf8_general_ci'
         mysql version: '5.7'
@@ -45,5 +46,5 @@ jobs:
     - name: Install libraries
       run: pushd lib; ./install-libs.sh; popd; sudo gem install jekyll; sudo gem install pygments.rb
     - name: Build with Maven
-      run: ./run-tests.sh ${{ matrix.suite }}
+      run: ./run-tests.sh --db-host localhost:3800 ${{ matrix.suite }}
 

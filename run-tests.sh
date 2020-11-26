@@ -5,7 +5,8 @@ SCRIPT_DIR=`pwd`
 DATABASE_NAME=irida_integration_test
 DATABASE_USER=test
 DATABASE_PASSWORD=test
-JDBC_URL=jdbc:mysql://localhost:3306/$DATABASE_NAME
+DATABASE_HOST=localhost:3306
+JDBC_URL=jdbc:mysql://$DATABASE_HOST/$DATABASE_NAME
 TMP_DIRECTORY=`mktemp -d /tmp/irida-test-XXXXXXXX`
 chmod 777 $TMP_DIRECTORY # Needs to be world-accessible so that Docker/Galaxy can access
 
@@ -211,12 +212,17 @@ check_dependencies
 
 cd $SCRIPT_DIR
 
-while [ "$1" = "--database" -o "$1" = "-d" -o "$1" = "--no-kill-docker" -o "$1" = "-c" -o "$1" = "--no-cleanup" -o "$1" = "--no-headless" -o "$1" = "--selenium-docker" ];
+while [ "$1" = "--database" -o "$1" = "-d" -o "$1" = "--db-host" -o "$1" = "--no-kill-docker" -o "$1" = "-c" -o "$1" = "--no-cleanup" -o "$1" = "--no-headless" -o "$1" = "--selenium-docker" ];
 do
 	if [ "$1" = "--database" -o "$1" = "-d" ];
 	then
 		shift
 		DATABASE_NAME=$1
+		shift
+	elif [ "$1" = "--db-host" ];
+	then
+		shift
+		DATABASE_HOST=$1
 		shift
 	elif [ "$1" = "--no-kill-docker" ];
 	then
