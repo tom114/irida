@@ -5,8 +5,9 @@ SCRIPT_DIR=`pwd`
 DATABASE_NAME=irida_integration_test
 DATABASE_USER=test
 DATABASE_PASSWORD=test
-DATABASE_HOST=localhost:3306
-JDBC_URL=jdbc:mysql://$DATABASE_HOST/$DATABASE_NAME
+DATABASE_HOST=localhost
+DATABASE_PORT=3306
+JDBC_URL=jdbc:mysql://$DATABASE_HOST:$DATABASE_PORT/$DATABASE_NAME
 TMP_DIRECTORY=`mktemp -d /tmp/irida-test-XXXXXXXX`
 chmod 777 $TMP_DIRECTORY # Needs to be world-accessible so that Docker/Galaxy can access
 
@@ -63,13 +64,13 @@ pretest_cleanup() {
 		DB_ERR="Failed to clean/create new database named '$DATABASE_NAME'. Perhaps you need to grant permission first with 'echo \"grant all privileges on $DATABASE_NAME.* to '$DATABASE_USER'@'localhost';\" | mysql -u root -p'."
 
 		set -x
-		echo "drop database if exists $DATABASE_NAME; create database $DATABASE_NAME;" | mysql -u$DATABASE_USER -p$DATABASE_PASSWORD
+		echo "drop database if exists $DATABASE_NAME; create database $DATABASE_NAME;" | mysql -P $DATABASE_PORT -h $DATABASE_HOST -u$DATABASE_USER -p$DATABASE_PASSWORD
 		if [ $? -ne 0 ];
 		then
 			set +x
 			exit_error $DB_ERR
 		fi
-		mysql -u$DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME < $SCRIPT_DIR/ci/irida_latest.sql
+		mysql --P $DATABASE_PORT -h $DATABASE_HOST u$DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME < $SCRIPT_DIR/ci/irida_latest.sql
 		if [ $? -ne 0 ];
 		then
 			set +x
@@ -212,7 +213,7 @@ check_dependencies
 
 cd $SCRIPT_DIR
 
-while [ "$1" = "--database" -o "$1" = "-d" -o "$1" = "--db-host" -o "$1" = "--no-kill-docker" -o "$1" = "-c" -o "$1" = "--no-cleanup" -o "$1" = "--no-headless" -o "$1" = "--selenium-docker" ];
+while [ "$1" = "--database" -o "$1" = "-d" -o "$1" = "--db-host" -o "$1" = "--db-port" -o "$1" = "--no-kill-docker" -o "$1" = "-c" -o "$1" = "--no-cleanup" -o "$1" = "--no-headless" -o "$1" = "--selenium-docker" ];
 do
 	if [ "$1" = "--database" -o "$1" = "-d" ];
 	then
@@ -223,6 +224,11 @@ do
 	then
 		shift
 		DATABASE_HOST=$1
+		shift
+	elif [ "$1" = "--db-port" ];
+	then
+		shift
+		DATABASE_PORT=$1
 		shift
 	elif [ "$1" = "--no-kill-docker" ];
 	then
