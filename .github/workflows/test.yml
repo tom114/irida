@@ -24,9 +24,9 @@ jobs:
           ${{ runner.os }}-maven
     - name: Cache Node Modules
       uses: actions/cache@v2
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      with:
+        path: '**/node_modules'
+        key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
     - name: Start database
       run: sudo /etc/init.d/mysql start
     - name: 'Database setup'
