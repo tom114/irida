@@ -1,6 +1,6 @@
 name: Integration Tests
 
-on: pull-request
+on: pull_request
 
 jobs:
   maven-build: # Maven integration tests
