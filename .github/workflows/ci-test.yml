@@ -7,6 +7,12 @@ on:
 jobs:
   integration-tests:
     runs-on: ubuntu-20.04
+    env:
+      MYSQL_PORT: 3800
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_DATABASE: irida_integration_test
+      MYSQL_HOST: 127.0.0.1
 
     strategy:
       fail-fast: false  #Setting so that if one of the test suites fail, the other will continue
@@ -28,24 +34,24 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - uses: mirromutth/mysql-action@v1.1
         with:
-          host port: 3800
+          host port: ${{ env.MYSQL_PORT }}
           character set server: 'utf8'
           collation server: 'utf8_general_ci'
           mysql version: '5.7'
-          mysql database: 'irida_integration_test'
-          mysql user: 'test'
-          mysql password: 'test'
+          mysql database: ${{ env.MYSQL_DATABASE }}
+          mysql user: ${{ env.MYSQL_USER }}
+          mysql password: ${{ env.MYSQL_PASSWORD }}
       - name: Set up JDK 11 # Installs java 11
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Verify MySQL connection
-        run: |
-          while ! mysqladmin ping -h"127.0.0.1" -P3800 --silent; do
-            sleep 1
-          done
       - name: Install libraries # Install our non-maven backed dependencies, and docs requirements
         run: pushd lib; ./install-libs.sh; popd; sudo gem install jekyll; sudo gem install pygments.rb
+      - name: Verify MySQL connection
+          run: |
+            while ! mysqladmin ping -h${{ env.MYSQL_HOST }} -P${{ env.MYSQL_PORT }} --silent; do
+              sleep 1
+            done
       - name: Run tests with Maven # Run the test suite
-        run: ./run-tests.sh --db-host 127.0.0.1 --db-port 3800 ${{ matrix.suite }}
+        run: ./run-tests.sh --db-host ${{ env.MYSQL_HOST }}  --db-port ${{ env.MYSQL_PORT }} --database ${{ env.MYSQL_DATABASE}} ${{ matrix.suite }}
 
