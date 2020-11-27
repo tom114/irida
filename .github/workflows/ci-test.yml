@@ -1,10 +1,20 @@
+#####################################################################
+# Integration test suite definition for IRIDA using GitHub Actions
+#####################################################################
+
 name: Integration Tests
 
-on: pull_request
+on:
+  pull_request
+  push:
+    branches:
+      - development
+      - master
+
 
 jobs:
   maven-build: # Maven integration tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-20.04 #See pre-installed software at https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-README.md
     env:
       MYSQL_PORT: 3800
       MYSQL_USER: test
@@ -45,11 +55,6 @@ jobs:
           java-version: 11
       - name: Install libraries # Install our non-maven backed dependencies
         run: pushd lib; ./install-libs.sh; popd
-      - name: Verify MySQL connection
-        run: |
-          while ! mysqladmin ping -h${{ env.MYSQL_HOST }} -P${{ env.MYSQL_PORT }} --silent; do
-            sleep 1
-          done
       - name: Run tests with Maven # Run the test suite
         run: ./run-tests.sh --db-host ${{ env.MYSQL_HOST }}  --db-port ${{ env.MYSQL_PORT }} --database ${{ env.MYSQL_DATABASE}} ${{ matrix.suite }}
 
