@@ -1,8 +1,6 @@
 name: Integration Tests
 
-on:
-  push:
-    branches: [ actions-test ]
+on: pull-request
 
 jobs:
   maven-build: # Maven integration tests
