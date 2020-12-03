@@ -62,7 +62,7 @@ public class RESTProjectSamplesControllerTest {
 		Join<Project, Sample> r = new ProjectSampleJoin(p, s, true);
 		
 		when(projectService.read(p.getId())).thenReturn(p);
-		when(projectService.addSampleToProject(p, s, true)).thenReturn(r);
+		when(projectService.createNewSampleInProject(p, s)).thenReturn(r);
         
         ModelMap modelMap = controller.addSampleToProject(p.getId(), s, response);
         
@@ -71,7 +71,7 @@ public class RESTProjectSamplesControllerTest {
 		assertTrue("ModelMap should contan a SampleResource",o instanceof Sample);
 		 
         verify(projectService, times(1)).read(p.getId());
-        verify(projectService, times(1)).addSampleToProject(p, s, true);
+        verify(projectService, times(1)).createNewSampleInProject(p, s);
         
         Link selfLink = s.getLink(Link.REL_SELF);
         Link sequenceFilesLink = s.getLink(RESTSampleSequenceFilesController.REL_SAMPLE_SEQUENCE_FILES);
@@ -232,11 +232,11 @@ public class RESTProjectSamplesControllerTest {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		when(projectService.read(p.getId())).thenReturn(p);
 		when(sampleService.read(s.getId())).thenReturn(s);
-		when(projectService.addSampleToProject(p, s, false)).thenReturn(r);
+		when(projectService.addExistingSampleToProject(p, s, false)).thenReturn(r);
 		ModelMap modelMap = controller
-				.copySampleToProject(p.getId(), Lists.newArrayList(s.getId()), response, Locale.ENGLISH);
+				.copySampleToProject(p.getId(), Lists.newArrayList(s.getId()), false, response, Locale.ENGLISH);
 		
-		verify(projectService).addSampleToProject(p, s, false);
+		verify(projectService).addExistingSampleToProject(p, s, false);
 		assertEquals("response should have CREATED status", HttpStatus.CREATED.value(), response.getStatus());
 		final String location = response.getHeader(HttpHeaders.LOCATION);
 		assertEquals("location should include sample and project IDs", "http://localhost/api/projects/" + p.getId()
@@ -279,13 +279,13 @@ public class RESTProjectSamplesControllerTest {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		when(projectService.read(p.getId())).thenReturn(p);
 		when(sampleService.read(s.getId())).thenReturn(s);
-		when(projectService.addSampleToProject(p, s, false)).thenThrow(new EntityExistsException("sample already exists!"));
+		when(projectService.addExistingSampleToProject(p, s, false)).thenThrow(new EntityExistsException("sample already exists!"));
 		when(sampleService.getSampleForProject(p, s.getId())).thenReturn(r);
 
 		ModelMap modelMap = controller
-				.copySampleToProject(p.getId(), Lists.newArrayList(s.getId()), response, Locale.ENGLISH);
+				.copySampleToProject(p.getId(), Lists.newArrayList(s.getId()), false, response, Locale.ENGLISH);
 
-		verify(projectService).addSampleToProject(p, s, false);
+		verify(projectService).addExistingSampleToProject(p, s, false);
 		verify(sampleService).getSampleForProject(p,s.getId());
 
 		assertEquals("response should have CREATED status", HttpStatus.CREATED.value(), response.getStatus());

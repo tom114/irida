@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -131,14 +130,14 @@ public class ProjectServiceImplTest {
 	public void testAddSampleToProject() {
 		Sample s = new Sample();
 		s.setSampleName("sample");
-		s.setId(2222L);
 		Project p = project();
 
 		ProjectSampleJoin join = new ProjectSampleJoin(p, s, true);
 
 		when(psjRepository.save(join)).thenReturn(join);
+		when(sampleRepository.save(any(Sample.class))).thenReturn(s);
 
-		Join<Project, Sample> rel = projectService.addSampleToProject(p, s, true);
+		Join<Project, Sample> rel = projectService.createNewSampleInProject(p, s);
 
 		verify(psjRepository).save(join);
 		verify(sampleRepository).getSampleBySampleName(p, s.getSampleName());
@@ -187,7 +186,7 @@ public class ProjectServiceImplTest {
 		when(validator.validate(s)).thenReturn(noViolations);
 		when(sampleRepository.save(s)).thenReturn(s);
 
-		projectService.addSampleToProject(p, s, true);
+		projectService.createNewSampleInProject(p, s);
 
 		verify(sampleRepository).save(s);
 		verify(psjRepository).save(new ProjectSampleJoin(p, s, true));
@@ -204,7 +203,7 @@ public class ProjectServiceImplTest {
 
 		when(validator.validate(s)).thenReturn(violations);
 
-		projectService.addSampleToProject(p, s, true);
+		projectService.createNewSampleInProject(p, s);
 
 		verifyZeroInteractions(sampleRepository, psjRepository);
 	}
@@ -221,7 +220,7 @@ public class ProjectServiceImplTest {
 		when(psjRepository.save(any(ProjectSampleJoin.class))).thenThrow(
 				new DataIntegrityViolationException("duplicate"));
 
-		projectService.addSampleToProject(p, s, true);
+		projectService.createNewSampleInProject(p, s);
 
 		verify(sampleRepository).save(s);
 	}
@@ -235,7 +234,7 @@ public class ProjectServiceImplTest {
 
 		when(sampleRepository.getSampleBySampleName(p, s.getSampleName())).thenReturn(otherSample);
 
-		projectService.addSampleToProject(p, s, true);
+		projectService.createNewSampleInProject(p, s);
 	}
 
 	@SuppressWarnings("unchecked")

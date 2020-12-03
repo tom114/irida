@@ -47,7 +47,6 @@ import ca.corefacility.bioinformatics.irida.ria.web.projects.ProjectSamplesContr
 import ca.corefacility.bioinformatics.irida.service.ProjectService;
 import ca.corefacility.bioinformatics.irida.service.SequencingObjectService;
 import ca.corefacility.bioinformatics.irida.service.sample.SampleService;
-import ca.corefacility.bioinformatics.irida.service.user.UserService;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -204,7 +203,7 @@ public class ProjectSamplesControllerTest {
 		Project project1 = getProject();
 		Sample sample = new Sample("test");
 		sample.setId(1L);
-		projectService.addSampleToProject(project1, sample, true);
+		projectService.createNewSampleInProject(project1, sample);
 		List<Long> idList = new ArrayList<>();
 		idList.add(1L);
 		when(projectService.read(PROJECT_ID)).thenReturn(project1);
