@@ -20,7 +20,7 @@ import { FILTERS, SAMPLE_EVENTS } from "./constants";
 import { download } from "../../../utilities/file-utilities";
 import "../../../../css/pages/project-samples.css";
 import { putSampleInCart } from "../../../apis/cart/cart";
-import { cartNotification } from "../../../utilities/events-utilities";
+import { samplesAddedToCart } from "../../../utilities/events-utilities";
 import { setBaseUrl } from "../../../utilities/url-utilities";
 
 import "./linker/Linker";
@@ -148,9 +148,7 @@ const cartBtn = new SampleCartButton($(".js-cart-btn"), function () {
 
   // Updated post method
   Object.keys(projects).forEach((id) => {
-    putSampleInCart(+id, projects[id]).then((count) =>
-      cartNotification({ count })
-    );
+    putSampleInCart(+id, projects[id]);
   });
 });
 SAMPLE_TOOL_BUTTONS.push(cartBtn);
@@ -334,9 +332,7 @@ const config = Object.assign({}, tableConfig, {
     {
       targets: [COLUMNS.CREATED_DATE, COLUMNS.MODIFIED_DATE],
       render(data) {
-        return `<time>${formatInternationalizedDateTime({
-          date: data,
-        })}</time>`;
+        return `<time>${formatInternationalizedDateTime(data)}</time>`;
       },
     },
   ],
@@ -455,10 +451,10 @@ $("#js-modal-wrapper").on("show.bs.modal", function (event) {
   /*
   Find the ids for the currently selected samples.
    */
-  params["sampleIds"] = getSelectedIds();
+  const sampleIds = getSelectedIds();
 
   let script;
-  modal.load(`${url}?${$.param(params)}`, function () {
+  modal.load(`${url}`, { sampleIds, ...params }, function () {
     if (typeof script_src !== "undefined") {
       script = document.createElement("script");
       script.type = "text/javascript";

@@ -60,7 +60,7 @@ Note that we have found **no evidence of missing live data**.  It appears that a
 ### The fix
 {:.no_toc}
 
-Solving this issue involved a refactor of the database structure to remove the `sample_metadata_entry` table.
+Solving this issue involved a refactor of the database structure to remove the `sample_metadata_entry` table.  The new database structure is as follows:
 
 * `sample` - A record of a sample which contains its name, creation date, and some fixed metadata (ex: "sample1").
 * `metadata_field` - The header of a line-list column.  This table contains the field's name & datatype (ex: "Organism").
@@ -77,17 +77,79 @@ Since Envers was writing audit records for the `sample_AUD` and `metadata_entry_
 
 #### Metadata linking script
 {:.no_toc}
-We've included a small utility script which can be run before the upgrade to generate a report of all disconnected `sample_metadata_entry_AUD` records and their connections to their parent samples where available.  While we do not expect that these records will be needed in the future, we recommend running this utility and saving the report alongside your 21.01 upgrade database backup to ensure the history of these samples is maintained.  This script **must be run before you perform the 21.01 update**.
+
+In addition to re-linking old data as described above, we've included a small utility script which can be run before the upgrade to generate a report of all disconnected `sample_metadata_entry_AUD` records and their connections to their parent samples where available.  While we do not expect that this report will be needed in the future, we recommend running this utility and saving the report alongside your backups to ensure the history of these samples is maintained.  **This script must be run before you perform the 21.01 update**.
 
 This script will output a CSV file of the following data:
 
 | `metadata_entry` database id | `metadata_entry` text value | Envers revision number of the entry | User ID of the user that made the change | `sample` database id associated with the metadata | Name of the sample |
+|---|---|---|---|---|---|
 
-You can download this script at <https://github.com/phac-nml/irida/tree/development/src/main/resources/scripts/metadata-mappings>.  This script requires the `Text::CSV` perl package to be installed (available in CPAN and various other package managers).  To run this script:
+You can download this script at <https://github.com/phac-nml/irida/tree/development/src/main/resources/scripts/metadata-mappings>.  This script requires the `Text::CSV`, `DBI`, and `DBD::mysql` perl packages to be installed (available in CPAN and various other package managers).  To run this script:
 
 ```bash
 $ perl metadata-mappings.pl -u [database username] -p [database password] -d [irida database name] -h [database host] > [outputfile.csv]
 ```
+Note if your database is running on `localhost` you may need to specify the host by IP (`127.0.0.1`).
+
+## Plugin version updates
+
+Due to the updates described above regarding IRIDA's metadata storage refactors, the way that IRIDA analysis plugins interact with a sample's metadata will change as well.  If you are the developer of an IRIDA analysis plugin, you will need to perform the updates below and release a new plugin version for your pipeline to be compatible with new versions of IRIDA.  This guide makes some assumptions that your plugin is structured similarly to IRIDA's example plugin <https://github.com/phac-nml/irida-plugin-example>.
+
+There are 2 files that must be updated:
+
+* The plugin's `AnalysisSampleUpdater` implementation.  You will need to change any methods interacting with sample metadata to use the new service methods.
+* The `pom.xml` file.  You will need to tell your IRIDA plugin to target the `21.01` version of IRIDA's code in order to take advantage of the new features.  You will also need to increment your plugin version number in this file to tell IRIDA to use your new version.
+
+Examples of how to update these files is shown below.  After these updates are complete you can re-compile your plugin and push a new release to your plugin's GitHub repository.
+
+### Preparing your development environment
+{:.no_toc}
+
+Before building your updated plugin, you must pull and install the new version of IRIDA to your local Maven repository.  Follow the instructions at <https://irida.corefacility.ca/documentation/developer/tools/pipelines/#321-install-irida-to-local-maven-repository>.  Ensure you've checked out the `21.01` IRIDA version.  Note if you are preparing your plugin prior to the `21.01` release, you can install IRIDA's `development` branch.  In that case you will use the `21.01-SNAPSHOT` version for IRIDA version references below.
+
+### `AnalysisSampleUpdater` class
+{:.no_toc}
+
+See the relevant section in IRIDA's example plugin where the plugin class is updating a sample's metadata <https://github.com/phac-nml/irida-plugin-example/blob/0.1.0/src/main/java/ca/corefacility/bioinformatics/irida/plugins/ExamplePluginUpdater.java#L120-L127>.
+
+The relevant portion of the code is pasted below.  **This is the section of code that must be updated:**
+```java
+Map<MetadataTemplateField, MetadataEntry> metadataMap = metadataTemplateService.getMetadataMap(metadataEntries);
+
+// merges with existing sample metadata
+sample.mergeMetadata(metadataMap);
+
+// does an update of the sample metadata
+sampleService.updateFields(sample.getId(), ImmutableMap.of("metadata", sample.getMetadata()));
+```
+
+This code will need to be converted to use IRIDA's new service-based metadata methods.  In the case of the example plugin, the following code can be dropped in to replace the above snippet.
+
+```java
+//convert the string/entry Map to a Set of MetadataEntry.  This has the same function as the old metadataTemplateService.getMetadataMap
+Set<MetadataEntry> metadataSet = metadataTemplateService.convertMetadataStringsToSet(metadataEntries);
+
+// merges with existing sample metadata and does an update of the sample metadata.  This has the function of the old sample.mergeMetadata and sampleService.updateFields
+sampleService.mergeSampleMetadata(sample,metadataSet);
+```
+
+### `pom.xml` file
+
+Updates to the `pom.xml` file will be required to indicate to IRIDA that this plugin conforms to IRIDA's 1.1.0 plugin spec.  It's recommended to update the following lines:
+
+* The `<version>` tag for your plugin should be incremented <https://github.com/phac-nml/irida-plugin-example/blob/0.1.0/pom.xml#L9>
+* The `<plugin.version>` property should be incremented <https://github.com/phac-nml/irida-plugin-example/blob/0.1.0/pom.xml#L16>
+* The `<plugin.requires.runtime>` property should be updated to be `1.1.0` <https://github.com/phac-nml/irida-plugin-example/blob/0.1.0/pom.xml#L19>
+* The `<irida.version.compiletime>` property should be set to `21.01` <https://github.com/phac-nml/irida-plugin-example/blob/0.1.0/pom.xml#L22>.  Note if you are preparing your plugin prior to the `21.01` release and you have installed IRIDA's development version, you can set this to `21.01-SNAPSHOT`.
+
+IRIDA's newer versions have also moved to using Java 11.  Since you're already editing this file, you can update your Java version to 11 for the plugin as well.  Set the following properties:
+
+```xml
+<java.version>11</java.version>
+<maven.compiler.release>11</maven.compiler.release>
+```
+Example at <https://github.com/phac-nml/irida-plugin-example/blob/0.1.0/pom.xml#L28>
 
 # 20.05
 ## Assemblies data
