@@ -4,6 +4,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,6 +26,7 @@ import ca.corefacility.bioinformatics.irida.model.sample.Sample;
 import ca.corefacility.bioinformatics.irida.model.sample.metadata.MetadataEntry;
 import ca.corefacility.bioinformatics.irida.service.sample.MetadataTemplateService;
 import ca.corefacility.bioinformatics.irida.service.sample.SampleService;
+import ca.corefacility.bioinformatics.irida.web.assembler.resource.ResourceCollection;
 import ca.corefacility.bioinformatics.irida.web.controller.api.RESTGenericController;
 import ca.corefacility.bioinformatics.irida.web.controller.api.projects.RESTProjectSamplesController;
 
@@ -66,6 +68,26 @@ public class RESTSampleMetadataController {
 		SampleMetadataResponse response = buildSampleMetadataResponse(s, metadataForSample);
 
 		modelMap.addAttribute(RESTGenericController.RESOURCE_NAME, response);
+		return modelMap;
+	}
+
+	@RequestMapping(value = "/api/samples/metadata", method = RequestMethod.POST, consumes = "application/idcollection+json")
+	public ModelMap getMultipleSampleMetadata(final @RequestBody List<Long> sampleIds) {
+		ModelMap modelMap = new ModelMap();
+
+		ResourceCollection<SampleMetadataResponse> resources = new ResourceCollection<>();
+
+		for (Long sampleId : sampleIds) {
+			Sample s = sampleService.read(sampleId);
+			Set<MetadataEntry> metadataForSample = sampleService.getMetadataForSample(s);
+
+			SampleMetadataResponse response = buildSampleMetadataResponse(s, metadataForSample);
+
+			resources.add(response);
+		}
+
+		modelMap.addAttribute(RESTGenericController.RESOURCE_NAME, resources);
+
 		return modelMap;
 	}
 
