@@ -86,6 +86,9 @@ public class RESTSampleMetadataController {
 			resources.add(response);
 		}
 
+		resources.add(
+				linkTo(methodOn(RESTSampleMetadataController.class).getMultipleSampleMetadata(null)).withSelfRel());
+
 		modelMap.addAttribute(RESTGenericController.RESOURCE_NAME, resources);
 
 		return modelMap;
