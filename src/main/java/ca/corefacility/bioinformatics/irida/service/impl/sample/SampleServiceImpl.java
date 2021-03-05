@@ -11,7 +11,8 @@ import javax.validation.Validator;
 
 import ca.corefacility.bioinformatics.irida.model.sample.MetadataTemplateField;
 import ca.corefacility.bioinformatics.irida.model.sample.metadata.MetadataEntry;
-import ca.corefacility.bioinformatics.irida.repositories.sample.MetadataEntryRepository;
+import ca.corefacility.bioinformatics.irida.repositories.sample.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,8 +55,6 @@ import ca.corefacility.bioinformatics.irida.repositories.assembly.GenomeAssembly
 import ca.corefacility.bioinformatics.irida.repositories.joins.project.ProjectSampleJoinRepository;
 import ca.corefacility.bioinformatics.irida.repositories.joins.sample.SampleGenomeAssemblyJoinRepository;
 import ca.corefacility.bioinformatics.irida.repositories.joins.sample.SampleSequencingObjectJoinRepository;
-import ca.corefacility.bioinformatics.irida.repositories.sample.QCEntryRepository;
-import ca.corefacility.bioinformatics.irida.repositories.sample.SampleRepository;
 import ca.corefacility.bioinformatics.irida.repositories.sequencefile.SequencingObjectRepository;
 import ca.corefacility.bioinformatics.irida.repositories.specification.ProjectSampleJoinSpecification;
 import ca.corefacility.bioinformatics.irida.repositories.specification.ProjectSampleSpecification;
@@ -204,6 +203,15 @@ public class SampleServiceImpl extends CRUDServiceImpl<Long, Sample> implements 
 	@Override
 	public Set<MetadataEntry> getMetadataForSample(Sample sample, List<MetadataTemplateField> fields) {
 		return metadataEntryRepository.getMetadataForSampleAndField(sample, fields);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@PreAuthorize("hasPermission(#project, 'canReadProject')")
+	@Override
+	public List<MetadataResponse> getMetadataForProject(Project project, List<MetadataTemplateField> fields) {
+		return metadataEntryRepository.getMetadataForSampleAndFieldSorted(project, fields);
 	}
 
 	/**

@@ -26,6 +26,7 @@ import ca.corefacility.bioinformatics.irida.model.sample.MetadataTemplateField;
 import ca.corefacility.bioinformatics.irida.model.sample.Sample;
 import ca.corefacility.bioinformatics.irida.model.sample.StaticMetadataTemplateField;
 import ca.corefacility.bioinformatics.irida.model.sample.metadata.MetadataEntry;
+import ca.corefacility.bioinformatics.irida.repositories.sample.MetadataResponse;
 import ca.corefacility.bioinformatics.irida.ria.web.components.agGrid.AgGridColumn;
 import ca.corefacility.bioinformatics.irida.ria.web.linelist.dto.UIMetadataField;
 import ca.corefacility.bioinformatics.irida.ria.web.linelist.dto.UIMetadataFieldDefault;
@@ -87,7 +88,21 @@ public class LineListController {
 			metadataTemplateFields = fieldIds.stream().map(i -> metadataTemplateService.readMetadataField(i)).collect(Collectors.toList());
 		}
 
+		List<MetadataResponse> metadataForProject = sampleService.getMetadataForProject(project,
+				metadataTemplateFields);
 
+
+		return metadataForProject.stream().map(response -> {
+			long sampleId = response.getSampleId();
+			ProjectSampleJoin sampleForProject = sampleService.getSampleForProject(project, sampleId);
+
+			Set<MetadataEntry> metadata = response.getEntries();
+			return new UISampleMetadata(sampleForProject, updateSamplePermission.isAllowed(authentication, sampleForProject.getObject()), metadata);
+
+		}).collect(Collectors.toList());
+
+		//return metadataForProject;
+/*
 		List<Join<Project, Sample>> projectSamples = sampleService.getSamplesForProject(project);
 		return projectSamples.stream()
 				.map(join -> {
@@ -95,7 +110,7 @@ public class LineListController {
 					Set<MetadataEntry> metadata = sampleService.getMetadataForSample(psj.getObject(), metadataTemplateFields);
 					return new UISampleMetadata(psj, updateSamplePermission.isAllowed(authentication, psj.getObject()), metadata);
 				})
-				.collect(Collectors.toList());
+				.collect(Collectors.toList());*/
 	}
 
 	/**

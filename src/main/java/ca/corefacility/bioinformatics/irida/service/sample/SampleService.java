@@ -24,6 +24,7 @@ import ca.corefacility.bioinformatics.irida.model.sample.SampleSequencingObjectJ
 import ca.corefacility.bioinformatics.irida.model.sequenceFile.SequenceFile;
 import ca.corefacility.bioinformatics.irida.model.sequenceFile.SequencingObject;
 import ca.corefacility.bioinformatics.irida.model.workflow.submission.AnalysisSubmission;
+import ca.corefacility.bioinformatics.irida.repositories.sample.MetadataResponse;
 import ca.corefacility.bioinformatics.irida.ria.web.admin.dto.statistics.GenericStatModel;
 import ca.corefacility.bioinformatics.irida.service.CRUDService;
 
@@ -86,6 +87,8 @@ public interface SampleService extends CRUDService<Long, Sample> {
 	 * @return a set of {@link MetadataEntry}
 	 */
 	public Set<MetadataEntry> getMetadataForSample(Sample sample, List<MetadataTemplateField> fields);
+
+	public List<MetadataResponse> getMetadataForProject(Project project, List<MetadataTemplateField> fields);
 	
 	/**
 	 * Find a {@link Sample} assocaited with a {@link SequencingObject}
