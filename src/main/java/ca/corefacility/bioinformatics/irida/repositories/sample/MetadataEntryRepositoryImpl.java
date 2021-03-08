@@ -32,11 +32,15 @@ public class MetadataEntryRepositoryImpl implements MetadataEntryRepositoryCusto
 
 		Map<String, MetadataTemplateField> entryMap = new HashMap<>();
 
+		String searchTerm = "";
+
 		int counter = 0;
 
 		String selectSql = "SELECT s.id as 'sample'";
 		String fromSql = " FROM project_sample p INNER JOIN sample s ON s.id=p.sample_id";
 		String whereSql = " WHERE p.project_id=:project";
+
+		List<String> searches = new ArrayList<>();
 
 		parameters.addValue("project", project.getId());
 
@@ -55,7 +59,21 @@ public class MetadataEntryRepositoryImpl implements MetadataEntryRepositoryCusto
 
 			fromSql = fromSql + fieldSql;
 
+			if(! searchTerm.isEmpty()) {
+				searches.add(fieldCounter + ".value like :search");
+			}
+
 			parameters.addValue(whereField, field.getId());
+		}
+
+		if(! searches.isEmpty()){
+			String searchString = String.join(" OR ", searches);
+
+			whereSql = whereSql + " AND (" + searchString + ")";
+
+			searchTerm = "%" + searchTerm + "%";
+
+			parameters.addValue("search", searchTerm);
 		}
 
 		String combinedQuery = selectSql + fromSql + whereSql;
