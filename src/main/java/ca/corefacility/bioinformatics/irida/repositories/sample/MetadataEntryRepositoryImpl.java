@@ -26,13 +26,12 @@ public class MetadataEntryRepositoryImpl implements MetadataEntryRepositoryCusto
 	}
 
 	@Override
-	public List<MetadataResponse> getMetadataForSampleAndFieldSorted(Project project, List<MetadataTemplateField> fields) {
+	public List<MetadataResponse> getMetadataForSampleAndFieldSorted(Project project, List<MetadataTemplateField> fields, String searchTerm) {
 		NamedParameterJdbcTemplate tmpl = new NamedParameterJdbcTemplate(dataSource);
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 
 		Map<String, MetadataTemplateField> entryMap = new HashMap<>();
 
-		String searchTerm = "";
 
 		int counter = 0;
 

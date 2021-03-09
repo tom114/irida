@@ -52,7 +52,7 @@ public class LineListControllerTest {
 	@Test
 	public void testGetAllProjectMetadataEntries() {
 		long projectId = 1L;
-		lineListController.getProjectSamplesMetadataEntries(projectId, new ArrayList<>());
+		lineListController.getProjectSamplesMetadataEntries(projectId, new ArrayList<>(), "");
 		verify(sampleService, times(1)).getSamplesForProject(any(Project.class));
 	}
 }
