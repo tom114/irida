@@ -77,7 +77,7 @@ public class LineListController {
 	@ResponseBody
 	public List<UISampleMetadata> getProjectSamplesMetadataEntries(@RequestParam long projectId,
 			@RequestParam(required = false, defaultValue = "") List<Long> fieldIds,
-			@RequestParam(required = false, defaultValue = "") String searchTerm) {
+			@RequestParam(required = false, defaultValue = "") String searchTerm, @RequestParam(required = false, defaultValue = "500") int pageSize, @RequestParam(required = false, defaultValue = "0") int offset) {
 		Authentication authentication = SecurityContextHolder.getContext()
 				.getAuthentication();
 		Project project = projectService.read(projectId);
@@ -91,7 +91,7 @@ public class LineListController {
 		}
 
 		List<MetadataResponse> metadataForProject = sampleService.getMetadataForProject(project,
-				metadataTemplateFields, searchTerm);
+				metadataTemplateFields, searchTerm, pageSize, offset);
 
 
 		return metadataForProject.stream().map(response -> {

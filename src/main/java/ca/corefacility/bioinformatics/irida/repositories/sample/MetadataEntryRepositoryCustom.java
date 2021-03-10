@@ -8,5 +8,5 @@ import ca.corefacility.bioinformatics.irida.model.sample.MetadataTemplateField;
 public interface MetadataEntryRepositoryCustom {
 
 	List<MetadataResponse> getMetadataForSampleAndFieldSorted(Project project,
-			List<MetadataTemplateField> fields, String searchTerm);
+			List<MetadataTemplateField> fields, String searchTerm, int pageSize, int offset);
 }

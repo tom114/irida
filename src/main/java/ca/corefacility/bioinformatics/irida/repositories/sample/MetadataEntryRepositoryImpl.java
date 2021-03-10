@@ -26,7 +26,7 @@ public class MetadataEntryRepositoryImpl implements MetadataEntryRepositoryCusto
 	}
 
 	@Override
-	public List<MetadataResponse> getMetadataForSampleAndFieldSorted(Project project, List<MetadataTemplateField> fields, String searchTerm) {
+	public List<MetadataResponse> getMetadataForSampleAndFieldSorted(Project project, List<MetadataTemplateField> fields, String searchTerm, int pageSize, int offset) {
 		NamedParameterJdbcTemplate tmpl = new NamedParameterJdbcTemplate(dataSource);
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 
@@ -73,6 +73,10 @@ public class MetadataEntryRepositoryImpl implements MetadataEntryRepositoryCusto
 			searchTerm = "%" + searchTerm + "%";
 
 			parameters.addValue("search", searchTerm);
+		}
+
+		if(pageSize > 0){
+			whereSql = whereSql + " LIMIT " + pageSize + " OFFSET " + offset;
 		}
 
 		String combinedQuery = selectSql + fromSql + whereSql;

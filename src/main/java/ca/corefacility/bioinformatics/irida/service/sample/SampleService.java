@@ -88,7 +88,7 @@ public interface SampleService extends CRUDService<Long, Sample> {
 	 */
 	public Set<MetadataEntry> getMetadataForSample(Sample sample, List<MetadataTemplateField> fields);
 
-	public List<MetadataResponse> getMetadataForProject(Project project, List<MetadataTemplateField> fields, String searchTerm);
+	public List<MetadataResponse> getMetadataForProject(Project project, List<MetadataTemplateField> fields, String searchTerm, int pageSize, int offset);
 	
 	/**
 	 * Find a {@link Sample} assocaited with a {@link SequencingObject}

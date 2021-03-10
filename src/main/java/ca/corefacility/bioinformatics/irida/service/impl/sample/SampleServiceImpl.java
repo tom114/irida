@@ -210,8 +210,8 @@ public class SampleServiceImpl extends CRUDServiceImpl<Long, Sample> implements 
 	 */
 	@PreAuthorize("hasPermission(#project, 'canReadProject')")
 	@Override
-	public List<MetadataResponse> getMetadataForProject(Project project, List<MetadataTemplateField> fields, String searchTerm) {
-		return metadataEntryRepository.getMetadataForSampleAndFieldSorted(project, fields, searchTerm);
+	public List<MetadataResponse> getMetadataForProject(Project project, List<MetadataTemplateField> fields, String searchTerm, int pageSize, int offset) {
+		return metadataEntryRepository.getMetadataForSampleAndFieldSorted(project, fields, searchTerm, pageSize, offset);
 	}
 
 	/**
