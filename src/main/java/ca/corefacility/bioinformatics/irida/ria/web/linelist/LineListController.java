@@ -69,20 +69,30 @@ public class LineListController {
 	 * {@link  Sample}s in a {@link Project}
 	 *
 	 * @param projectId {@link Long} identifier for a {@link Project}
+	 * @param fieldIds  List of metadata field IDs to return
 	 * @return {@link List} of {@link UISampleMetadata}s of all {@link Sample} metadata in a {@link Project}
 	 */
 	@RequestMapping(value = "/entries", method = RequestMethod.GET)
 	@ResponseBody
-	public List<UISampleMetadata> getProjectSamplesMetadataEntries(@RequestParam long projectId) {
+	public List<UISampleMetadata> getProjectSamplesMetadataEntries(@RequestParam long projectId, @RequestParam(required = false, defaultValue = "") List<Long> fieldIds) {
 		Authentication authentication = SecurityContextHolder.getContext()
 				.getAuthentication();
 		Project project = projectService.read(projectId);
 
+		//if we haven't requested anything, get all fields
+		List<MetadataTemplateField> metadataTemplateFields;
+		if (fieldIds.isEmpty()) {
+			metadataTemplateFields = metadataTemplateService.getMetadataFieldsForProject(project);
+		} else {
+			metadataTemplateFields = fieldIds.stream().map(i -> metadataTemplateService.readMetadataField(i)).collect(Collectors.toList());
+		}
+
+
 		List<Join<Project, Sample>> projectSamples = sampleService.getSamplesForProject(project);
 		return projectSamples.stream()
 				.map(join -> {
-					ProjectSampleJoin psj = (ProjectSampleJoin)join;
-					Set<MetadataEntry> metadata = sampleService.getMetadataForSample(psj.getObject());
+					ProjectSampleJoin psj = (ProjectSampleJoin) join;
+					Set<MetadataEntry> metadata = sampleService.getMetadataForSample(psj.getObject(), metadataTemplateFields);
 					return new UISampleMetadata(psj, updateSamplePermission.isAllowed(authentication, psj.getObject()), metadata);
 				})
 				.collect(Collectors.toList());
